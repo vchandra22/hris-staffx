@@ -63,7 +63,7 @@ class UserHelper extends Venturo
      *
      * @return bool
      */
-    public function delete(int $id): bool
+    public function delete(string $id): bool
     {
         try {
             $this->userModel->drop($id);
@@ -104,7 +104,7 @@ class UserHelper extends Venturo
      *
      * @return array
      */
-    public function getById(int $id): array
+    public function getById(string $id): array
     {
         $user = $this->userModel->getById($id);
         if (empty($user)) {
@@ -132,7 +132,7 @@ class UserHelper extends Venturo
      *
      * @return array
      */
-    public function update(array $payload, int $id): array
+    public function update(array $payload, string $id): array
     {
         try {
             if (isset($payload['password']) && !empty($payload['password'])) {

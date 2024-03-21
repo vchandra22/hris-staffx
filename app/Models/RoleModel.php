@@ -20,12 +20,12 @@ class RoleModel extends Model implements CrudInterface
     ];
     protected $table = 'm_user_roles';
 
-    public function drop(int $id)
+    public function drop(string $id)
     {
         return $this->find($id)->delete();
     }
 
-    public function edit(array $payload, int $id)
+    public function edit(array $payload, string $id)
     {
         return $this->find($id)->update($payload);
     }
@@ -45,7 +45,7 @@ class RoleModel extends Model implements CrudInterface
         return $user->paginate($itemPerPage)->appends('sort', $sort);
     }
 
-    public function getById(int $id)
+    public function getById(string $id)
     {
         return $this->find($id);
     }
