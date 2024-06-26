@@ -1,0 +1,68 @@
+# Use the official PHP 8.2 image as the base image
+FROM php:8.2-apache
+
+# Install necessary system packages and PHP extensions
+RUN apt-get update && apt-get install -y \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    libwebp-dev \
+    libzip-dev \
+    libmagickwand-dev \
+    zlib1g-dev \
+    libmemcached-dev \
+    libssl-dev \
+    pkg-config \
+    zip \
+    unzip \
+    git \
+    curl \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install -j$(nproc) gd \
+    && docker-php-ext-install zip \
+    && docker-php-ext-install pdo_mysql \
+    && pecl install redis \
+    && pecl install mongodb \
+    && pecl install imagick \
+    && docker-php-ext-enable redis \
+    && docker-php-ext-enable mongodb \
+    && docker-php-ext-enable imagick \
+    && a2enmod rewrite
+
+# Set up the working directory
+WORKDIR /var/www/html
+
+# Copy the application code to the working directory
+COPY . /var/www/html
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Set appropriate permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 777 /var/www/html/storage \
+    && chmod -R 777 /var/www/html/bootstrap/cache
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Copy .env
+RUN mv .env.dev .env
+RUN php artisan migrate
+
+RUN php artisan storage:link
+RUN php artisan cache:clear
+RUN php artisan view:clear
+RUN php artisan config:cache
+
+# Copy .env
+RUN mv .env.dev.kube .env
+
+# Copy the Apache configuration file
+COPY ./docker/apache.conf /etc/apache2/sites-available/000-default.conf
+
+# Expose port 80
+EXPOSE 80
+
+# Start Apache server
+CMD ["apache2-foreground"]
+
