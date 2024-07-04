@@ -27,7 +27,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/users', [UserController::class, 'index']); //->middleware(['auth.api', 'role:user.view']);
     Route::get('/users/{id}', [UserController::class, 'show']); //->middleware(['auth.api', 'role:user.view']);
     Route::post('/users', [UserController::class, 'store']); //->middleware(['auth.api', 'role:user.create|roles.view']);
-    Route::put('/users', [UserController::class, 'update']); //->middleware(['auth.api', 'role:user.update||roles.view']);
+    Route::put('/users/{id}', [UserController::class, 'update']); //->middleware(['auth.api', 'role:user.update||roles.view']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']); //->middleware(['auth.api', 'role:user.delete']);
 
     Route::get('/roles', [RoleController::class, 'index']); //->middleware(['auth.api', 'role:roles.view']);

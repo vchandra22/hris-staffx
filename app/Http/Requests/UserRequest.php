@@ -1,11 +1,11 @@
 <?php
-namespace App\Http\Requests\User;
+namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use ProtoneMedia\LaravelMixins\Request\ConvertsBase64ToFiles;
 
-class CreateRequest extends FormRequest
+class UserRequest extends FormRequest
 {
     use ConvertsBase64ToFiles; // Library untuk convert base64 menjadi File
 
@@ -33,18 +33,35 @@ class CreateRequest extends FormRequest
         $this->validator = $validator;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
+    public function rules(): array
+    {
+        if ($this->isMethod('post')) {
+        dd("post");
+
+            return $this->createRules();
+        }
+
+        return $this->updateRules();
+    }
+
+    private function createRules(): array
     {
         return [
             'name' => 'required|max:100',
-            'photo' => 'nullable|file|image', // Validasi untuk upload file image saja, jika tidak ada perubahan foto user, isi key foto dengan NULL
-            'email' => 'required|email|unique:m_user', // Validasi email unik berdasarkan data di tabel m_user
+            'photo' => 'nullable|file|image',
+            'email' => 'required|email|unique:m_user',
             'password' => 'required|min:6',
+            'phone_number' => 'numeric',
+            'm_user_roles_id' => 'required',
+        ];
+    }
+
+    private function updateRules(): array
+    {
+        return [
+            'name' => 'required|max:100',
+            'photo' => 'nullable|file|image',
+            'email' => 'required|email|unique:m_user,email,'. $this->id,
             'phone_number' => 'numeric',
             'm_user_roles_id' => 'required',
         ];

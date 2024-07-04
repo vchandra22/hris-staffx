@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\Role\RoleHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Role\RoleRequest;
-use App\Http\Resources\Role\RoleCollection;
-use App\Http\Resources\Role\RoleResource;
+use App\Http\Resources\BaseCollection;
+use App\Http\Resources\RoleResource;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
@@ -45,8 +45,8 @@ class RoleController extends Controller
             'name' => $request->name ?? '',
         ];
         $roles = $this->role->getAll($filter, $request->per_page ?? 25, $request->sort ?? '');
+        return response()->success(new BaseCollection( RoleResource::collection($roles['data']), $roles['data']));
 
-        return response()->success(new RoleCollection($roles['data']));
     }
 
     /**

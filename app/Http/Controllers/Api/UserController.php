@@ -3,10 +3,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\User\UserHelper;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\User\CreateRequest;
-use App\Http\Requests\User\UpdateRequest;
-use App\Http\Resources\User\UserCollection;
-use App\Http\Resources\User\UserResource;
+use App\Http\Requests\UserRequest;
+use App\Http\Resources\BaseCollection;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -47,8 +46,8 @@ class UserController extends Controller
             'email' => $request->email ?? '',
         ];
         $users = $this->user->getAll($filter, $request->per_page ?? 25, $request->sort ?? '');
-
-        return response()->success(new UserCollection($users['data']));
+        // dd(UserResource::collection($users['data']), $users);
+        return response()->success(new BaseCollection( UserResource::collection($users['data']), $users['data']));
     }
 
     /**
@@ -73,7 +72,7 @@ class UserController extends Controller
      *
      * @author Wahyu Agung <wahyuagung26@email.com>
      */
-    public function store(CreateRequest $request)
+    public function store(UserRequest $request)
     {
         /**
          * Menampilkan pesan error ketika validasi gagal
@@ -98,7 +97,7 @@ class UserController extends Controller
      *
      * @author Wahyu Agung <wahyuagung26@email.com>
      */
-    public function update(UpdateRequest $request)
+    public function update(UserRequest $request, $id)
     {
         /**
          * Menampilkan pesan error ketika validasi gagal
@@ -108,8 +107,8 @@ class UserController extends Controller
             return response()->failed($request->validator->errors());
         }
 
-        $payload = $request->only(['email', 'name', 'password', 'id', 'photo', 'phone_number', 'm_user_roles_id']);
-        $user = $this->user->update($payload, $payload['id'] ?? 0);
+        $payload = $request->only(['email', 'name', 'password', 'photo', 'phone_number', 'm_user_roles_id']);
+        $user = $this->user->update($payload, $id ?? 0);
 
         if (!$user['status']) {
             return response()->failed($user['error']);
