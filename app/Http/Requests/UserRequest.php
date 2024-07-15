@@ -36,8 +36,6 @@ class UserRequest extends FormRequest
     public function rules(): array
     {
         if ($this->isMethod('post')) {
-        dd("post");
-
             return $this->createRules();
         }
 
