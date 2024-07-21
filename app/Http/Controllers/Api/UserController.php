@@ -47,7 +47,12 @@ class UserController extends Controller
         ];
         $users = $this->user->getAll($filter, $request->per_page ?? 25, $request->sort ?? '');
         // dd(UserResource::collection($users['data']), $users);
-        return response()->success(new BaseCollection( UserResource::collection($users['data']), $users['data']));
+        return response()->success([
+            'list' => UserResource::collection($users['data']),
+            'meta' => [
+                'total' => $users['total']
+            ]
+        ]);
     }
 
     /**

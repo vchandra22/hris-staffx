@@ -115,8 +115,9 @@ class UserModel extends Authenticatable implements CrudInterface, JWTSubject
         return $this->find($id)->update($payload);
     }
 
-    public function getAll(array $filter, int $itemPerPage = 0, string $sort = '')
+    public function getAll(array $filter, int $page, int $itemPerPage = 0, string $sort = '')
     {
+        $skip = ($page * $itemPerPage) - $itemPerPage;
         $user = $this->query();
 
         if (!empty($filter['name'])) {
@@ -127,11 +128,13 @@ class UserModel extends Authenticatable implements CrudInterface, JWTSubject
             $user->where('email', 'LIKE', '%' . $filter['email'] . '%');
         }
 
-        $sort = $sort ?: 'id DESC';
-        $user->orderByRaw($sort);
-        $itemPerPage = ($itemPerPage > 0) ? $itemPerPage : false;
+        $total = $model->count();
+        $list = $model->skip($skip)->take($itemPerPage)->orderByRaw($sort)->get();
 
-        return $user->paginate($itemPerPage)->appends('sort', $sort);
+        return [
+            "total" => $total,
+            "data" => $list,
+        ];
     }
 
     public function getById(string $id)

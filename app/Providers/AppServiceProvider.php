@@ -19,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
                 'status_code' => 200,
                 'data' => $data,
                 'message' => $message,
-                'settings' => $settings
+                'settings' => $settings,
             ], 200);
         });
 
