@@ -115,7 +115,7 @@ class UserModel extends Authenticatable implements CrudInterface, JWTSubject
         return $this->find($id)->update($payload);
     }
 
-    public function getAll(array $filter, int $page, int $itemPerPage = 0, string $sort = '')
+    public function getAll(array $filter, int $page = 1, int $itemPerPage = 0, string $sort = '')
     {
         $skip = ($page * $itemPerPage) - $itemPerPage;
         $user = $this->query();

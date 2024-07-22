@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api;
 
-use App\Helpers\Role\RoleHelper;
+use App\Helpers\User\RoleHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Role\RoleRequest;
 use App\Http\Resources\BaseCollection;
@@ -44,8 +44,14 @@ class RoleController extends Controller
         $filter = [
             'name' => $request->name ?? '',
         ];
-        $roles = $this->role->getAll($filter, $request->per_page ?? 25, $request->sort ?? '');
-        return response()->success(new BaseCollection( RoleResource::collection($roles['data']), $roles['data']));
+        $roles = $this->role->getAll($filter, $request->page ?? 1, $request->per_page ?? 25, $request->sort ?? '');
+
+        return response()->success([
+            'list' => RoleResource::collection($roles['data']),
+            'meta' => [
+                'total' => $roles['total']
+            ]
+        ]);
 
     }
 

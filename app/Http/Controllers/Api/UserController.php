@@ -45,8 +45,8 @@ class UserController extends Controller
             'name' => $request->name ?? '',
             'email' => $request->email ?? '',
         ];
-        $users = $this->user->getAll($filter, $request->per_page ?? 25, $request->sort ?? '');
-        // dd(UserResource::collection($users['data']), $users);
+        $users = $this->user->getAll($filter, $request->page ?? 1, $request->per_page ?? 25, $request->sort ?? '');
+        
         return response()->success([
             'list' => UserResource::collection($users['data']),
             'meta' => [

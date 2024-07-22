@@ -30,19 +30,22 @@ class RoleModel extends Model implements CrudInterface
         return $this->find($id)->update($payload);
     }
 
-    public function getAll(array $filter, int $itemPerPage = 0, string $sort = '')
+    public function getAll(array $filter, int $page = 1, int $itemPerPage = 0, string $sort = '')
     {
-        $user = $this->query();
+        $skip = ($page * $itemPerPage) - $itemPerPage;
+        $role = $this->query();
 
         if (!empty($filter['name'])) {
-            $user->where('name', 'LIKE', '%' . $filter['name'] . '%');
+            $role->where('name', 'LIKE', '%' . $filter['name'] . '%');
         }
 
-        $sort = $sort ?: 'id DESC';
-        $user->orderByRaw($sort);
-        $itemPerPage = ($itemPerPage > 0) ? $itemPerPage : false;
+        $total = $model->count();
+        $list = $model->skip($skip)->take($itemPerPage)->orderByRaw($sort)->get();
 
-        return $user->paginate($itemPerPage)->appends('sort', $sort);
+        return [
+            "total" => $total,
+            "data" => $list,
+        ];
     }
 
     public function getById(string $id)
