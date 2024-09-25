@@ -10,11 +10,11 @@ use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
-    private $role;
+    private $roleHelper;
 
     public function __construct()
     {
-        $this->role = new RoleHelper();
+        $this->roleHelper = new RoleHelper();
     }
 
     /**
@@ -25,7 +25,7 @@ class RoleController extends Controller
      */
     public function destroy($id)
     {
-        $role = $this->role->delete($id);
+        $role = $this->roleHelper->delete($id);
 
         if (!$role) {
             return response()->failed(['Mohon maaf role tidak ditemukan']);
@@ -44,7 +44,7 @@ class RoleController extends Controller
         $filter = [
             'name' => $request->name ?? '',
         ];
-        $roles = $this->role->getAll($filter, $request->page ?? 1, $request->per_page ?? 25, $request->sort ?? '');
+        $roles = $this->roleHelper->getAll($filter, $request->page ?? 1, $request->per_page ?? 25, $request->sort ?? '');
 
         return response()->success([
             'list' => RoleResource::collection($roles['data']),
@@ -63,7 +63,7 @@ class RoleController extends Controller
      */
     public function show($id)
     {
-        $role = $this->role->getById($id);
+        $role = $this->roleHelper->getById($id);
 
         if (!($role['status'])) {
             return response()->failed(['Data role tidak ditemukan'], 404);
@@ -84,7 +84,7 @@ class RoleController extends Controller
         }
 
         $payload = $request->only(['name', 'access']);
-        $role = $this->role->create($payload);
+        $role = $this->roleHelper->create($payload);
 
         if (!$role['status']) {
             return response()->failed($role['error']);
@@ -105,7 +105,7 @@ class RoleController extends Controller
         }
 
         $payload = $request->only(['name', 'access', 'id']);
-        $role = $this->role->update($payload, $payload['id'] ?? 0);
+        $role = $this->roleHelper->update($payload, $payload['id'] ?? 0);
 
         if (!$role['status']) {
             return response()->failed($role['error']);

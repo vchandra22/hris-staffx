@@ -39,8 +39,8 @@ class RoleModel extends Model implements CrudInterface
             $role->where('name', 'LIKE', '%' . $filter['name'] . '%');
         }
 
-        $total = $model->count();
-        $list = $model->skip($skip)->take($itemPerPage)->orderByRaw($sort)->get();
+        $total = $role->count();
+        $list = $role->skip($skip)->take($itemPerPage)->orderByRaw($sort)->get();
 
         return [
             "total" => $total,

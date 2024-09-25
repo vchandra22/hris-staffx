@@ -128,8 +128,8 @@ class UserModel extends Authenticatable implements CrudInterface, JWTSubject
             $user->where('email', 'LIKE', '%' . $filter['email'] . '%');
         }
 
-        $total = $model->count();
-        $list = $model->skip($skip)->take($itemPerPage)->orderByRaw($sort)->get();
+        $total = $user->count();
+        $list = $user->skip($skip)->take($itemPerPage)->orderByRaw($sort)->get();
 
         return [
             "total" => $total,

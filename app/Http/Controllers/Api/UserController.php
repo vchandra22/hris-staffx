@@ -10,11 +10,11 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    private $user;
+    private $userHelper;
 
     public function __construct()
     {
-        $this->user = new UserHelper();
+        $this->userHelper = new UserHelper();
     }
 
     /**
@@ -25,7 +25,7 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        $user = $this->user->delete($id);
+        $user = $this->userHelper->delete($id);
 
         if (!$user) {
             return response()->failed(['Mohon maaf data pengguna tidak ditemukan']);
@@ -45,8 +45,8 @@ class UserController extends Controller
             'name' => $request->name ?? '',
             'email' => $request->email ?? '',
         ];
-        $users = $this->user->getAll($filter, $request->page ?? 1, $request->per_page ?? 25, $request->sort ?? '');
-        
+        $users = $this->userHelper->getAll($filter, $request->page ?? 1, $request->per_page ?? 25, $request->sort ?? '');
+
         return response()->success([
             'list' => UserResource::collection($users['data']),
             'meta' => [
@@ -63,7 +63,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = $this->user->getById($id);
+        $user = $this->userHelper->getById($id);
 
         if (!($user['status'])) {
             return response()->failed(['Data user tidak ditemukan'], 404);
@@ -88,7 +88,7 @@ class UserController extends Controller
         }
 
         $payload = $request->only(['email', 'name', 'password', 'photo', 'phone_number', 'm_user_roles_id']);
-        $user = $this->user->create($payload);
+        $user = $this->userHelper->create($payload);
 
         if (!$user['status']) {
             return response()->failed($user['error']);
@@ -113,7 +113,7 @@ class UserController extends Controller
         }
 
         $payload = $request->only(['email', 'name', 'password', 'photo', 'phone_number', 'm_user_roles_id']);
-        $user = $this->user->update($payload, $id ?? 0);
+        $user = $this->userHelper->update($payload, $id ?? 0);
 
         if (!$user['status']) {
             return response()->failed($user['error']);
