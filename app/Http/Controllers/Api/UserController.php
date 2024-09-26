@@ -1,10 +1,10 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Helpers\User\UserHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
-use App\Http\Resources\BaseCollection;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 
@@ -14,24 +14,25 @@ class UserController extends Controller
 
     public function __construct()
     {
-        $this->userHelper = new UserHelper();
+        $this->userHelper = new UserHelper;
     }
 
     /**
      * Delete data user
      *
      * @author Wahyu Agung <wahyuagung26@email.com>
-     * @param mixed $id
+     *
+     * @param  mixed  $id
      */
     public function destroy($id)
     {
         $user = $this->userHelper->delete($id);
 
-        if (!$user) {
+        if (! $user) {
             return response()->failed(['Mohon maaf data pengguna tidak ditemukan']);
         }
 
-        return response()->success($user, "User berhasil dihapus");
+        return response()->success($user, 'User berhasil dihapus');
     }
 
     /**
@@ -50,8 +51,8 @@ class UserController extends Controller
         return response()->success([
             'list' => UserResource::collection($users['data']),
             'meta' => [
-                'total' => $users['total']
-            ]
+                'total' => $users['total'],
+            ],
         ]);
     }
 
@@ -59,13 +60,14 @@ class UserController extends Controller
      * Menampilkan user secara spesifik dari tabel m_user
      *
      * @author Wahyu Agung <wahyuagung26@email.com>
-     * @param mixed $id
+     *
+     * @param  mixed  $id
      */
     public function show($id)
     {
         $user = $this->userHelper->getById($id);
 
-        if (!($user['status'])) {
+        if (! ($user['status'])) {
             return response()->failed(['Data user tidak ditemukan'], 404);
         }
 
@@ -90,11 +92,11 @@ class UserController extends Controller
         $payload = $request->only(['email', 'name', 'password', 'photo', 'phone_number', 'm_user_roles_id']);
         $user = $this->userHelper->create($payload);
 
-        if (!$user['status']) {
+        if (! $user['status']) {
             return response()->failed($user['error']);
         }
 
-        return response()->success(new UserResource($user['data']), "User berhasil ditambahkan");
+        return response()->success(new UserResource($user['data']), 'User berhasil ditambahkan');
     }
 
     /**
@@ -115,10 +117,10 @@ class UserController extends Controller
         $payload = $request->only(['email', 'name', 'password', 'photo', 'phone_number', 'm_user_roles_id']);
         $user = $this->userHelper->update($payload, $id ?? 0);
 
-        if (!$user['status']) {
+        if (! $user['status']) {
             return response()->failed($user['error']);
         }
 
-        return response()->success(new UserResource($user['data']), "User berhasil diubah");
+        return response()->success(new UserResource($user['data']), 'User berhasil diubah');
     }
 }

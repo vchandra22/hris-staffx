@@ -1,8 +1,9 @@
 <?php
+
 namespace App\Models;
 
-use App\Repository\CrudInterface;
 use App\Http\Traits\Uuid;
+use App\Repository\CrudInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,10 +15,12 @@ class RoleModel extends Model implements CrudInterface
     use Uuid;
 
     public $timestamps = true;
+
     protected $fillable = [
         'name',
-        'access'
+        'access',
     ];
+
     protected $table = 'm_user_roles';
 
     public function drop(string $id)
@@ -35,16 +38,16 @@ class RoleModel extends Model implements CrudInterface
         $skip = ($page * $itemPerPage) - $itemPerPage;
         $role = $this->query();
 
-        if (!empty($filter['name'])) {
-            $role->where('name', 'LIKE', '%' . $filter['name'] . '%');
+        if (! empty($filter['name'])) {
+            $role->where('name', 'LIKE', '%'.$filter['name'].'%');
         }
 
         $total = $role->count();
         $list = $role->skip($skip)->take($itemPerPage)->orderByRaw($sort)->get();
 
         return [
-            "total" => $total,
-            "data" => $list,
+            'total' => $total,
+            'data' => $list,
         ];
     }
 

@@ -43,7 +43,7 @@ class JwtMiddleware extends BaseMiddleware
              *
              * Routes di atas hanya dapat diakses jika request dilengkapi dengan token JWT dan user memiliki akses "user_view"
              */
-            if (!empty($roles) && !$userModel->isHasRole($roles)) {
+            if (! empty($roles) && ! $userModel->isHasRole($roles)) {
                 return response()->failed(['Anda tidak memiliki credential untuk mengakses data ini'], 403);
             }
         } catch (Exception $e) {
@@ -52,7 +52,7 @@ class JwtMiddleware extends BaseMiddleware
             } elseif ($e instanceof TokenExpiredException) {
                 return response()->failed(['Token anda telah kadaluarsa, silahkan login ulang'], 403);
             } else {
-                return response()->failed(['Silahkan login terlebih dahulu. '. $e->getMessage()], 403);
+                return response()->failed(['Silahkan login terlebih dahulu. '.$e->getMessage()], 403);
             }
         }
 

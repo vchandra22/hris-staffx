@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Helpers\User;
 
 use App\Helpers\Venturo;
@@ -15,11 +16,12 @@ use Throwable;
 class UserHelper extends Venturo
 {
     const USER_PHOTO_DIRECTORY = 'foto-user';
+
     private $userModel;
 
     public function __construct()
     {
-        $this->userModel = new UserModel();
+        $this->userModel = new UserModel;
     }
 
     /**
@@ -27,12 +29,10 @@ class UserHelper extends Venturo
      *
      * @author Wahyu Agung <wahyuagung26@email.com>
      *
-     * @param array $payload
-     *                       $payload['name'] = string
-     *                       $payload['email] = string
-     *                       $payload['password] = string
-     *
-     * @return array
+     * @param  array  $payload
+     *                          $payload['name'] = string
+     *                          $payload['email] = string
+     *                          $payload['password] = string
      */
     public function create(array $payload): array
     {
@@ -44,12 +44,12 @@ class UserHelper extends Venturo
 
             return [
                 'status' => true,
-                'data' => $user
+                'data' => $user,
             ];
         } catch (Throwable $th) {
             return [
                 'status' => false,
-                'error' => $th->getMessage()
+                'error' => $th->getMessage(),
             ];
         }
     }
@@ -59,9 +59,7 @@ class UserHelper extends Venturo
      * yaitu mengisi kolom deleted_at agar data tsb tidak
      * keselect waktu menggunakan Query
      *
-     * @param integer $id id dari tabel m_user
-     *
-     * @return bool
+     * @param  int  $id  id dari tabel m_user
      */
     public function delete(string $id): bool
     {
@@ -79,30 +77,27 @@ class UserHelper extends Venturo
      *
      * @author Wahyu Agung <wahyuagung26@gmail.com>
      *
-     * @param array $filter
-     *                      $filter['name'] = string
-     *                      $filter['email'] = string
-     * @param integer $itemPerPage jumlah data yang ditampilkan, kosongi jika ingin menampilkan semua data
-     * @param string $sort nama kolom untuk melakukan sorting mysql beserta tipenya DESC / ASC
-     *
+     * @param  array  $filter
+     *                         $filter['name'] = string
+     *                         $filter['email'] = string
+     * @param  int  $itemPerPage  jumlah data yang ditampilkan, kosongi jika ingin menampilkan semua data
+     * @param  string  $sort  nama kolom untuk melakukan sorting mysql beserta tipenya DESC / ASC
      * @return array
      */
-    public function getAll(array $filter, int $page = 1 , int $itemPerPage = 0, string $sort = '')
+    public function getAll(array $filter, int $page = 1, int $itemPerPage = 0, string $sort = '')
     {
         $users = $this->userModel->getAll($filter, $page, $itemPerPage, $sort);
 
         return [
             'status' => true,
-            'data' => $users
+            'data' => $users,
         ];
     }
 
     /**
      * Mengambil 1 data user dari tabel m_user
      *
-     * @param integer $id id dari tabel m_user
-     *
-     * @return array
+     * @param  int  $id  id dari tabel m_user
      */
     public function getById(string $id): array
     {
@@ -110,13 +105,13 @@ class UserHelper extends Venturo
         if (empty($user)) {
             return [
                 'status' => false,
-                'data' => null
+                'data' => null,
             ];
         }
 
         return [
             'status' => true,
-            'data' => $user
+            'data' => $user,
         ];
     }
 
@@ -125,17 +120,15 @@ class UserHelper extends Venturo
      *
      * @author Wahyu Agung <wahyuagung26@email.com>
      *
-     * @param array $payload
-     *                       $payload['name'] = string
-     *                       $payload['email] = string
-     *                       $payload['password] = string
-     *
-     * @return array
+     * @param  array  $payload
+     *                          $payload['name'] = string
+     *                          $payload['email] = string
+     *                          $payload['password] = string
      */
     public function update(array $payload, string $id): array
     {
         try {
-            if (isset($payload['password']) && !empty($payload['password'])) {
+            if (isset($payload['password']) && ! empty($payload['password'])) {
                 $payload['password'] = Hash::make($payload['password']) ?: '';
             } else {
                 unset($payload['password']);
@@ -148,12 +141,12 @@ class UserHelper extends Venturo
 
             return [
                 'status' => true,
-                'data' => $user['data']
+                'data' => $user['data'],
             ];
         } catch (Throwable $th) {
             return [
                 'status' => false,
-                'error' => $th->getMessage()
+                'error' => $th->getMessage(),
             ];
         }
     }
@@ -163,7 +156,6 @@ class UserHelper extends Venturo
      *
      * @author Wahyu Agung <wahyuagung26@email.com>
      *
-     * @param array $payload
      * @return array
      */
     private function uploadGetPayload(array $payload)
@@ -171,8 +163,8 @@ class UserHelper extends Venturo
         /**
          * Jika dalam payload terdapat base64 foto, maka Upload foto ke folder public/uploads/foto-user
          */
-        if (!empty($payload['photo'])) {
-            $fileName = $this->generateFileName($payload['photo'], 'USER_' . date('Ymdhis'));
+        if (! empty($payload['photo'])) {
+            $fileName = $this->generateFileName($payload['photo'], 'USER_'.date('Ymdhis'));
             $photo = $payload['photo']->storeAs(self::USER_PHOTO_DIRECTORY, $fileName, 'public');
             $payload['photo'] = $photo;
         } else {

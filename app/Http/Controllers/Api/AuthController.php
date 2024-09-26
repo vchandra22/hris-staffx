@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Helpers\User\AuthHelper;
@@ -26,9 +27,9 @@ class AuthController extends Controller
         }
 
         $credentials = $request->only('email', 'password');
-        $login       = AuthHelper::login($credentials['email'], $credentials['password']);
+        $login = AuthHelper::login($credentials['email'], $credentials['password']);
 
-        if (!$login['status']) {
+        if (! $login['status']) {
             return response()->failed($login['error'], 422);
         }
 
@@ -55,10 +56,11 @@ class AuthController extends Controller
 
         $logout = AuthHelper::logout();
 
-        if (!$logout['status']) {
+        if (! $logout['status']) {
             return response()->failed($logout['error'], 422);
         }
-        return response()->success([],"Logout Success !");
+
+        return response()->success([], 'Logout Success !');
 
     }
 }

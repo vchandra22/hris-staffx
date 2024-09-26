@@ -1,10 +1,10 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Helpers\User\RoleHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Role\RoleRequest;
-use App\Http\Resources\BaseCollection;
 use App\Http\Resources\RoleResource;
 use Illuminate\Http\Request;
 
@@ -14,20 +14,21 @@ class RoleController extends Controller
 
     public function __construct()
     {
-        $this->roleHelper = new RoleHelper();
+        $this->roleHelper = new RoleHelper;
     }
 
     /**
      * Delete data role
      *
      * @author Wahyu Agung <wahyuagung26@email.com>
-     * @param mixed $id
+     *
+     * @param  mixed  $id
      */
     public function destroy($id)
     {
         $role = $this->roleHelper->delete($id);
 
-        if (!$role) {
+        if (! $role) {
             return response()->failed(['Mohon maaf role tidak ditemukan']);
         }
 
@@ -49,8 +50,8 @@ class RoleController extends Controller
         return response()->success([
             'list' => RoleResource::collection($roles['data']),
             'meta' => [
-                'total' => $roles['total']
-            ]
+                'total' => $roles['total'],
+            ],
         ]);
 
     }
@@ -59,13 +60,14 @@ class RoleController extends Controller
      * Menampilkan role secara spesifik dari tabel user_role
      *
      * @author Wahyu Agung <wahyuagung26@email.com>
-     * @param mixed $id
+     *
+     * @param  mixed  $id
      */
     public function show($id)
     {
         $role = $this->roleHelper->getById($id);
 
-        if (!($role['status'])) {
+        if (! ($role['status'])) {
             return response()->failed(['Data role tidak ditemukan'], 404);
         }
 
@@ -86,7 +88,7 @@ class RoleController extends Controller
         $payload = $request->only(['name', 'access']);
         $role = $this->roleHelper->create($payload);
 
-        if (!$role['status']) {
+        if (! $role['status']) {
             return response()->failed($role['error']);
         }
 
@@ -107,7 +109,7 @@ class RoleController extends Controller
         $payload = $request->only(['name', 'access', 'id']);
         $role = $this->roleHelper->update($payload, $payload['id'] ?? 0);
 
-        if (!$role['status']) {
+        if (! $role['status']) {
             return response()->failed($role['error']);
         }
 

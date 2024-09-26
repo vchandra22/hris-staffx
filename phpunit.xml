@@ -4,6 +4,14 @@
          bootstrap="vendor/autoload.php"
          colors="true">
 
+
+    <coverage includeUncoveredFiles="true"
+            pathCoverage="false"
+            ignoreDeprecatedCodeUnits="true"
+            disableCodeCoverageIgnore="true">
+        <!-- ... -->
+    </coverage>
+
     <testsuites>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
@@ -16,6 +24,8 @@
     <source>
         <include>
             <directory>app</directory>
+            <directory>resources</directory>
+            <directory>routes</directory>
         </include>
     </source>
 

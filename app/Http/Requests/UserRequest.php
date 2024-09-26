@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\Validator;
@@ -19,7 +20,7 @@ class UserRequest extends FormRequest
     public function attributes()
     {
         return [
-            'password' => 'Kolom Password'
+            'password' => 'Kolom Password',
         ];
     }
 
@@ -59,7 +60,7 @@ class UserRequest extends FormRequest
         return [
             'name' => 'required|max:100',
             'photo' => 'nullable|file|image',
-            'email' => 'required|email|unique:m_user,email,'. $this->id,
+            'email' => 'required|email|unique:m_user,email,'.$this->id,
             'phone_number' => 'numeric',
             'm_user_roles_id' => 'required',
         ];
@@ -67,8 +68,6 @@ class UserRequest extends FormRequest
 
     /**
      * inisialisasi key "photo" dengan value base64 sebagai "FILE"
-     *
-     * @return array
      */
     protected function base64FileKeys(): array
     {

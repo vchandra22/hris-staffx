@@ -1,8 +1,12 @@
 <?php
+
 namespace App\Http\Traits;
+
 use Illuminate\Support\Str;
+
 trait Uuid
-{   /**
+{
+    /**
      * Boot function from Laravel.
      */
     protected static function boot()
@@ -14,6 +18,7 @@ trait Uuid
             }
         });
     }
+
     /**
      * Get the value indicating whether the IDs are incrementing.
      *
@@ -22,7 +27,9 @@ trait Uuid
     public function getIncrementing()
     {
         return false;
-    }   /**
+    }
+
+    /**
      * Get the auto-incrementing key type.
      *
      * @return string

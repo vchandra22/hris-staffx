@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Web;
 
 use App\Helpers\Angular;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 
 class AppController extends Controller
 {
@@ -22,7 +22,8 @@ class AppController extends Controller
         return view('log');
     }
 
-    public function test() {
+    public function test()
+    {
         try {
             Log::info('tes log info', ['name' => 'wahyu']);
             Log::warning('tes log warning', ['name' => 'wahyu agung']);

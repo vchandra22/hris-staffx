@@ -18,39 +18,37 @@ class AuthHelper extends Venturo
      * Proses validasi email dan password
      * jika terdaftar pada database dilanjutkan generate token JWT
      *
-     * @param  string $email
-     * @param  string $password
-     *
+     * @param  string  $email
+     * @param  string  $password
      * @return void
      */
     public static function login($email, $password)
     {
         try {
             $credentials = ['email' => $email, 'password' => $password];
-            if (!$token = JWTAuth::attempt($credentials)) {
+            if (! $token = JWTAuth::attempt($credentials)) {
                 return [
                     'status' => false,
-                    'error' => ['Kombinasi email dan password yang kamu masukkan salah']
+                    'error' => ['Kombinasi email dan password yang kamu masukkan salah'],
                 ];
             }
         } catch (JWTException $e) {
             return [
                 'status' => false,
-                'error' => ['Could not create token.']
+                'error' => ['Could not create token.'],
             ];
         }
 
         return [
             'status' => true,
-            'data' => self::createNewToken($token)
+            'data' => self::createNewToken($token),
         ];
     }
 
     /**
      * Get the token array structure.
      *
-     * @param  string $token
-     *
+     * @param  string  $token
      * @return \Illuminate\Http\JsonResponse
      */
     protected static function createNewToken($token)
@@ -58,15 +56,16 @@ class AuthHelper extends Venturo
         return [
             'access_token' => $token,
             'token_type' => 'bearer',
-            'user' => new UserResource(auth()->user())
+            'user' => new UserResource(auth()->user()),
         ];
     }
 
-    public static function logout(){
+    public static function logout()
+    {
         try {
             $removeToken = JWTAuth::invalidate(JWTAuth::getToken());
 
-            if($removeToken) {
+            if ($removeToken) {
                 //return response JSON
                 return [
                     'status' => true,
@@ -74,10 +73,11 @@ class AuthHelper extends Venturo
                 ];
             }
         } catch (JWTException $e) {
-            dd($e,JWTAuth::getToken());
+            dd($e, JWTAuth::getToken());
+
             return [
                 'status' => false,
-                'error' => ['Could not logout token.']
+                'error' => ['Could not logout token.'],
             ];
         }
     }

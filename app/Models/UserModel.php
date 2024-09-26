@@ -1,12 +1,13 @@
 <?php
+
 namespace App\Models;
 
-use App\Repository\CrudInterface;
 use App\Http\Traits\Uuid;
-use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Repository\CrudInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
 class UserModel extends Authenticatable implements CrudInterface, JWTSubject
 {
@@ -20,6 +21,7 @@ class UserModel extends Authenticatable implements CrudInterface, JWTSubject
      * @var bool
      */
     public $timestamps = true;
+
     protected $attributes = [
         'm_user_roles_id' => 1, // memberi nilai default = 1 pada kolom m_user_roles_id
     ];
@@ -35,7 +37,7 @@ class UserModel extends Authenticatable implements CrudInterface, JWTSubject
         'password',
         'photo',
         'm_user_roles_id',
-        'phone_number'
+        'phone_number',
     ];
 
     /**
@@ -55,7 +57,7 @@ class UserModel extends Authenticatable implements CrudInterface, JWTSubject
         return $this->hasOne(RoleModel::class, 'id', 'm_user_roles_id');
     }
 
-        /**
+    /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
      * @return mixed
@@ -77,27 +79,27 @@ class UserModel extends Authenticatable implements CrudInterface, JWTSubject
             'user' => [
                 'id' => $this->id,
                 'email' => $this->email,
-                'updated_security' => $this->updated_security
-            ]
+                'updated_security' => $this->updated_security,
+            ],
         ];
     }
 
     /**
      * Method untuk mengecek apakah user memiliki permission
      *
-     * @param  string  $permissionName contoh: user.create / user.update
-     *
-     * @return boolean
+     * @param  string  $permissionName  contoh: user.create / user.update
+     * @return bool
      */
-    public function isHasRole($permissionName) {
+    public function isHasRole($permissionName)
+    {
         $tokenPermission = explode('|', $permissionName);
-        $userPrivilege = json_decode($this->role->access ?? '{}', TRUE);
+        $userPrivilege = json_decode($this->role->access ?? '{}', true);
 
-        foreach($tokenPermission as $val) {
+        foreach ($tokenPermission as $val) {
             $permission = explode('.', $val);
             $feature = $permission[0] ?? '-';
             $activity = $permission[1] ?? '-';
-            if(isset($userPrivilege[$feature][$activity]) && $userPrivilege[$feature][$activity] === true) {
+            if (isset($userPrivilege[$feature][$activity]) && $userPrivilege[$feature][$activity] === true) {
                 return true;
             }
         }
@@ -120,20 +122,20 @@ class UserModel extends Authenticatable implements CrudInterface, JWTSubject
         $skip = ($page * $itemPerPage) - $itemPerPage;
         $user = $this->query();
 
-        if (!empty($filter['name'])) {
-            $user->where('name', 'LIKE', '%' . $filter['name'] . '%');
+        if (! empty($filter['name'])) {
+            $user->where('name', 'LIKE', '%'.$filter['name'].'%');
         }
 
-        if (!empty($filter['email'])) {
-            $user->where('email', 'LIKE', '%' . $filter['email'] . '%');
+        if (! empty($filter['email'])) {
+            $user->where('email', 'LIKE', '%'.$filter['email'].'%');
         }
 
         $total = $user->count();
         $list = $user->skip($skip)->take($itemPerPage)->orderByRaw($sort)->get();
 
         return [
-            "total" => $total,
-            "data" => $list,
+            'total' => $total,
+            'data' => $list,
         ];
     }
 
@@ -147,4 +149,3 @@ class UserModel extends Authenticatable implements CrudInterface, JWTSubject
         return $this->create($payload);
     }
 }
-

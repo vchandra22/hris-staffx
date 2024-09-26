@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-     /**
+    /**
      * Run the migrations.
      *
      * @return void
@@ -17,21 +17,21 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('m_user_roles_id')->comment('Fill with id from table m_user_roles');
             $table->string('name', 100)
-                    ->comment('Fill with name of user');
+                ->comment('Fill with name of user');
             $table->string('email', 50)
-                    ->comment('Fill with user email for login');
+                ->comment('Fill with user email for login');
             $table->string('password', 255)
-                    ->comment('Fill with user password');
+                ->comment('Fill with user password');
             $table->string('phone_number', 25)
-                    ->default(null)
-                    ->comment('Fill with phone number of user')
-                    ->nullable();
+                ->default(null)
+                ->comment('Fill with phone number of user')
+                ->nullable();
             $table->string('photo', 100)
-                    ->comment('Fill with user profile picture')
-                    ->nullable();
+                ->comment('Fill with user profile picture')
+                ->nullable();
             $table->timestamp('updated_security')
-                    ->comment('Fill with timestamp when user update password / email')
-                    ->nullable();
+                ->comment('Fill with timestamp when user update password / email')
+                ->nullable();
             $table->timestamps();
             $table->softDeletes();
             $table->integer('created_by')->default(0);

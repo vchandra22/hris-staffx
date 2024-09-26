@@ -20,7 +20,6 @@ class RoleMiddleware extends BaseMiddleware
      * Routes di atas hanya dapat diakses jika request dilengkapi dengan token JWT dan user memiliki akses "user_view"
      *
      * @author Wahyu Agung <wahyuagung26@email.com>
-     *
      */
     public function handle($request, Closure $next, $roles)
     {
@@ -28,16 +27,16 @@ class RoleMiddleware extends BaseMiddleware
             $user = JWTAuth::parseToken()->authenticate();
 
             // Cek jika user tidak mempunyai akses, tolak request ke endpoint yg diminta
-            if(!$user->isHasRole($roles)){
+            if (! $user->isHasRole($roles)) {
                 return response()->failed(['Anda tidak memiliki credential untuk mengakses data ini'], 403);
             }
 
         } catch (Exception $e) {
-            if ($e instanceof TokenInvalidException){
+            if ($e instanceof TokenInvalidException) {
                 return response()->failed(['Token yang anda gunakan tidak valid'], 403);
-            }else if ($e instanceof TokenExpiredException){
+            } elseif ($e instanceof TokenExpiredException) {
                 return response()->failed(['Token anda telah kadaluarsa, silahkan login ulang'], 403);
-            }else{
+            } else {
                 return response()->failed($e->getMessage());
             }
         }

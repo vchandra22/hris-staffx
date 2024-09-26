@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-/**
+    /**
      * Bootstrap any application services.
      *
      * @return void
@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Response::macro('successWithSignature', function ($data = [], $message = '', $settings = []) {
-            $publicKey = file_get_contents(storage_path() . "/auth/public.pem");
+            $publicKey = file_get_contents(storage_path().'/auth/public.pem');
             $signature = (openssl_public_encrypt(json_encode($data), $encrypted, $publicKey)) ? base64_encode($encrypted) : null;
 
             return Response::make([
@@ -39,27 +39,27 @@ class AppServiceProvider extends ServiceProvider
             return Response::make([
                 'status_code' => $httpCode,
                 'errors' => $error,
-                'settings' => $settings
+                'settings' => $settings,
             ], $httpCode);
         });
 
         Response::macro('failedWithSignature', function ($error = null, $httpCode = 422, $settings = []) {
             if ($error instanceof \Illuminate\Support\MessageBag) {
                 $errMobile = $error->first();
-            } else if (is_array($error)) {
-                $errMobile = isset($error[0]) ? $error[0] : "";
-            } else if (is_string($error)) {
+            } elseif (is_array($error)) {
+                $errMobile = isset($error[0]) ? $error[0] : '';
+            } elseif (is_string($error)) {
                 $errMobile = $error;
             }
 
             $content = [
                 'status_code' => $httpCode,
                 'errors' => $error,
-                'errors_mobile' => isset($errMobile) ? $errMobile : "",
+                'errors_mobile' => isset($errMobile) ? $errMobile : '',
                 'settings' => $settings,
             ];
 
-            $publicKey = file_get_contents(storage_path() . "/auth/public.pem");
+            $publicKey = file_get_contents(storage_path().'/auth/public.pem');
             $signature = (openssl_public_encrypt(json_encode($content), $encrypted, $publicKey)) ? base64_encode($encrypted) : null;
 
             return Response::make($content, $httpCode, ['signature' => $signature]);
@@ -75,5 +75,4 @@ class AppServiceProvider extends ServiceProvider
     {
         //
     }
-
 }

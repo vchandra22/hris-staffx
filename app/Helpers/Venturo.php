@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Helpers;
 
 use Illuminate\Http\UploadedFile;
@@ -7,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 
 class Venturo
 {
-
     /**
      * Start DB transaction
      *
@@ -37,15 +37,15 @@ class Venturo
      *
      * @author Wahyu Agung <wahyuagung26@email.com>
      *
-     * @param UploadedFile $file object file upload Illuminate\Http\UploadedFile
-     * @param string $fileName custom nama file tanpa ekstensi, contohnya : PHOTO_WAHYU
+     * @param  UploadedFile  $file  object file upload Illuminate\Http\UploadedFile
+     * @param  string  $fileName  custom nama file tanpa ekstensi, contohnya : PHOTO_WAHYU
      * @return void
      */
-    protected function generateFileName(UploadedFile $file, string $fileName = '') :string
+    protected function generateFileName(UploadedFile $file, string $fileName = ''): string
     {
-        $fileName = empty($fileName) ? 'FILE_' . date('Ymdhis') : $fileName;
+        $fileName = empty($fileName) ? 'FILE_'.date('Ymdhis') : $fileName;
 
-        return $fileName . '.' . $file->extension();
+        return $fileName.'.'.$file->extension();
     }
 
     /**
@@ -53,15 +53,15 @@ class Venturo
      *
      * @author Wahyu Agung <wahyuagung26@email.com>
      *
-     * @param string $filePath path ke file blade di folder resource/views/generate/pdf
-     * @param string $data data yang akan dirender pada view
-     * @param array $paperSize ukuran kertas dan orientasinya
+     * @param  string  $filePath  path ke file blade di folder resource/views/generate/pdf
+     * @param  string  $data  data yang akan dirender pada view
+     * @param  array  $paperSize  ukuran kertas dan orientasinya
      * @return object
      */
     protected function loadPdf($filePath, $data, $paperSize = ['paper' => 'a4', 'orientation' => 'potrait'])
     {
         $pdf = App::make('dompdf.wrapper');
-        $pdf->loadView('generate/pdf/' . $filePath, compact('data'));
+        $pdf->loadView('generate/pdf/'.$filePath, compact('data'));
         $pdf->setPaper($paperSize['paper'], $paperSize['orientation']);
 
         return $pdf;
@@ -72,10 +72,10 @@ class Venturo
      *
      * @author Wahyu Agung <wahyuagung26@email.com>
      *
-     * @param string $filePath path ke file blade di folder resource/views/generate/pdf
-     * @param string $data data yang akan dirender pada view
-     * @param string $title judul / nama file ketika di download
-     * @param array $paperSize ukuran kertas dan orientasinya
+     * @param  string  $filePath  path ke file blade di folder resource/views/generate/pdf
+     * @param  string  $data  data yang akan dirender pada view
+     * @param  string  $title  judul / nama file ketika di download
+     * @param  array  $paperSize  ukuran kertas dan orientasinya
      * @return void
      */
     protected function pdfDownload($filePath, $data, $title = 'no-title.pdf', $paperSize = ['paper' => 'a4', 'orientation' => 'potrait'])
@@ -88,10 +88,10 @@ class Venturo
      *
      * @author Wahyu Agung <wahyuagung26@email.com>
      *
-     * @param string $filePath path ke file blade di folder resource/views/generate/pdf
-     * @param string $data data yang akan dirender pada view
-     * @param string $title judul / nama file ketika di download
-     * @param array $paperSize ukuran kertas dan orientasinya
+     * @param  string  $filePath  path ke file blade di folder resource/views/generate/pdf
+     * @param  string  $data  data yang akan dirender pada view
+     * @param  string  $title  judul / nama file ketika di download
+     * @param  array  $paperSize  ukuran kertas dan orientasinya
      * @return void
      */
     protected function pdfView($filePath, $data, $title = 'no-title.pdf', $paperSize = ['paper' => 'a4', 'orientation' => 'potrait'])
@@ -104,13 +104,13 @@ class Venturo
      *
      * @author Wahyu Agung <wahyuagung26@email.com>
      *
-     * @param string $filePath path ke file blade di folder resource/views/generate/
-     * @param string $data data yang akan dirender pada view
+     * @param  string  $filePath  path ke file blade di folder resource/views/generate/
+     * @param  string  $data  data yang akan dirender pada view
      * @return void
      */
     protected function print($filePath, $data)
     {
-        $view = (string) view('generate/' . $filePath, compact('data'));
+        $view = (string) view('generate/'.$filePath, compact('data'));
         $view .= '<script>window.print();</script>';
 
         return $view;
@@ -128,4 +128,3 @@ class Venturo
         DB::rollBack();
     }
 }
-

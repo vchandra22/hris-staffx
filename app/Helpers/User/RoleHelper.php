@@ -4,7 +4,6 @@ namespace App\Helpers\User;
 
 use App\Helpers\Venturo;
 use App\Models\RoleModel;
-use Illuminate\Support\Facades\Hash;
 use Throwable;
 
 class RoleHelper extends Venturo
@@ -13,16 +12,16 @@ class RoleHelper extends Venturo
 
     public function __construct()
     {
-        $this->roleModel = new RoleModel();
+        $this->roleModel = new RoleModel;
     }
 
-    public function getAll(array $filter, int $page = 1 , int $itemPerPage = 0, string $sort = '')
+    public function getAll(array $filter, int $page = 1, int $itemPerPage = 0, string $sort = '')
     {
         $role = $this->roleModel->getAll($filter, $page, $itemPerPage, $sort);
 
         return [
             'status' => true,
-            'data' => $role
+            'data' => $role,
         ];
     }
 
@@ -32,13 +31,13 @@ class RoleHelper extends Venturo
         if (empty($role)) {
             return [
                 'status' => false,
-                'data' => null
+                'data' => null,
             ];
         }
 
         return [
             'status' => true,
-            'data' => $role
+            'data' => $role,
         ];
     }
 
@@ -50,12 +49,12 @@ class RoleHelper extends Venturo
 
             return [
                 'status' => true,
-                'data' => $role
+                'data' => $role,
             ];
         } catch (Throwable $th) {
             return [
                 'status' => false,
-                'error' => $th->getMessage()
+                'error' => $th->getMessage(),
             ];
         }
     }
@@ -70,12 +69,12 @@ class RoleHelper extends Venturo
 
             return [
                 'status' => true,
-                'data' => $role['data']
+                'data' => $role['data'],
             ];
         } catch (Throwable $th) {
             return [
                 'status' => false,
-                'error' => $th->getMessage()
+                'error' => $th->getMessage(),
             ];
         }
     }

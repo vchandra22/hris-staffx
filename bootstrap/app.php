@@ -18,7 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth.api' => JwtMiddleware::class,
             'role' => RoleMiddleware::class,
-            'signature' => SignatureMiddleware::class
+            'signature' => SignatureMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

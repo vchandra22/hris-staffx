@@ -9,7 +9,7 @@ trait RecordSignature
         parent::boot();
 
         static::saving(function ($model) {
-            $model->updated_by =  auth()->user()->id;
+            $model->updated_by = auth()->user()->id;
         });
 
         static::creating(function ($model) {
