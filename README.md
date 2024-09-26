@@ -52,8 +52,12 @@ php artisan jwt:secret
 php artisan serve
 ```
 
+## Perintah Sebelum Commit
 
-
+Pastikan untuk menjalankan perintah berikut sebelum melakukan commit agar kode tetap konsisten dengan standar yang ditentukan:
+```
+vendor/bin/pint
+``` 
 
 
 
