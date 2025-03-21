@@ -227,3 +227,38 @@ if (! function_exists('format_rupiah')) {
         return 'Rp '.number_format($amount, 2, ',', '.');
     }
 }
+
+if (! function_exists('createUniqueSlug')) {
+    /**
+     * Generate a unique slug from a given string for a specified model.
+     * 
+     * @param string $string      String yang akan dikonversi menjadi slug.
+     * @param string $modelClass  Nama model Eloquent (misal: App\Models\Post::class).
+     * @param int|null $id        ID opsional untuk menghindari konflik slug saat update.
+     * 
+     * @return string Slug unik yang telah dibuat.
+     */
+    /**
+     * Cara penggunaan :
+     * Create : YourModel::createUniqueSlug($judul, YourModel::class),
+     * Update : YourModel::createUniqueSlug($judulBaru, YourModel::class, $model->id)
+     */
+    function createUniqueSlug(string $string, string $modelClass, ?int $id = null): string
+    {
+        // Membuat slug dasar dari string input
+        $slug = preg_replace('/[^A-Za-z0-9-]+/', '-', $string); // Mengganti karakter non-alfanumerik dengan "-"
+        $slug = strtolower(trim($slug, '-')); // Menghapus tanda hubung di awal & akhir, lalu ubah ke lowercase
+
+        // Memastikan slug unik dalam database
+        $originalSlug = $slug;
+        $count = 1;
+
+        while ($modelClass::where('slug', $slug)->when($id, function ($query) use ($id) {
+            return $query->where('id', '!=', $id); // Hindari konflik slug pada update
+        })->exists()) {
+            $slug = "{$originalSlug}-" . $count++;
+        }
+
+        return $slug;
+    }
+}
