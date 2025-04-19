@@ -34,6 +34,7 @@ return new class extends Migration
                 ->nullable();
             $table->timestamps();
             $table->softDeletes();
+
             $table->integer('created_by')->default(0);
             $table->integer('updated_by')->default(0);
             $table->integer('deleted_by')->default(0);
