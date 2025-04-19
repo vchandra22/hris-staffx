@@ -19,7 +19,8 @@ class DepartmentModel extends Model implements CrudInterface
 
     protected $fillable = [
         'id',
-        'name'
+        'name',
+        'description'
     ];
 
     // Relationships
