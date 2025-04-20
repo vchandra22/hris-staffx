@@ -21,7 +21,6 @@ class EmployeeModel extends Model implements CrudInterface
     protected $fillable = [
         'id',
         'user_id',
-        'phone',
         'birth_place',
         'birth_date',
         'address',

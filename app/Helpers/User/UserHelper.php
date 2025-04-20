@@ -2,8 +2,10 @@
 
 namespace App\Helpers\User;
 
+use App\Helpers\Employee\EmployeeHelper;
 use App\Helpers\Venturo;
 use App\Models\UserModel;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Throwable;
 
@@ -173,4 +175,18 @@ class UserHelper extends Venturo
 
         return $payload;
     }
+
+    public function restore(string $id): bool
+    {
+        try {
+            $user = $this->userModel->withTrashed()->find($id);
+            if ($user) {
+                return $user->restore();
+            }
+            return false;
+        } catch (Throwable $th) {
+            return false;
+        }
+    }
+
 }

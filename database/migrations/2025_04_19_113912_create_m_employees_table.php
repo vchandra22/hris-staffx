@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('m_employees', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('user_id')->unique()->comment('References id in users table');
-            $table->string('phone', 20)->nullable();
             $table->string('birth_place', 100)->nullable();
             $table->date('birth_date')->nullable();
             $table->text('address')->nullable();

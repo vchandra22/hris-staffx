@@ -80,7 +80,6 @@ class EmployeeHelper extends Venturo
             // Prepare employee data
             $employeeData = [
                 'user_id' => $userData['id'],
-                'phone' => $payload['phone'] ?? null,
                 'birth_place' => $payload['birth_place'] ?? null,
                 'birth_date' => $payload['birth_date'] ?? null,
                 'address' => $payload['address'] ?? null,
@@ -143,7 +142,6 @@ class EmployeeHelper extends Venturo
 
             // Update employee data
             $employeeData = array_filter([
-                'phone' => $payload['phone'] ?? null,
                 'birth_place' => $payload['birth_place'] ?? null,
                 'birth_date' => $payload['birth_date'] ?? null,
                 'address' => $payload['address'] ?? null,
@@ -174,7 +172,12 @@ class EmployeeHelper extends Venturo
         try {
             $this->beginTransaction();
 
-            $employee = $this->employee->findOrFail($id);
+            $employee = $this->employee->with('user')->findOrFail($id);
+
+            if ($employee->user) {
+                $this->user->delete($employee->user->id);
+            }
+
             $result = $employee->delete();
 
             $this->commitTransaction();
@@ -196,7 +199,16 @@ class EmployeeHelper extends Venturo
         try {
             $this->beginTransaction();
 
-            $employee = $this->employee->withTrashed()->findOrFail($id);
+            $employee = $this->employee->withTrashed()
+                ->with(['user' => function($query) {
+                    $query->withTrashed();
+                }])
+                ->findOrFail($id);
+
+            if ($employee->user) {
+                $this->user->restore($employee->user->id);
+            }
+
             $result = $employee->restore();
 
             $this->commitTransaction();

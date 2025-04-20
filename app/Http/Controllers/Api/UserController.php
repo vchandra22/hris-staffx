@@ -46,12 +46,20 @@ class UserController extends Controller
             'name' => $request->name ?? '',
             'email' => $request->email ?? '',
         ];
-        $users = $this->userHelper->getAll($filter, $request->page ?? 1, $request->per_page ?? 25, $request->sort ?? '');
+
+        $sort = $request->sort ?? '';
+
+        $users = $this->userHelper->getAll(
+            $filter,
+            $request->page ?? 1,
+            $request->per_page ?? 25,
+            $sort
+        );
 
         return response()->success([
-            'list' => UserResource::collection($users['data']),
+            'list' => UserResource::collection($users['data']['data']),
             'meta' => [
-                'total' => $users['total'],
+                'total' => $users['data']['total'],
             ],
         ]);
     }

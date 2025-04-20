@@ -57,6 +57,11 @@ class UserModel extends Authenticatable implements CrudInterface, JWTSubject
         return $this->hasOne(RoleModel::class, 'id', 'm_user_roles_id');
     }
 
+    public function employee()
+    {
+        return $this->hasOne(EmployeeModel::class);
+    }
+
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
@@ -130,8 +135,18 @@ class UserModel extends Authenticatable implements CrudInterface, JWTSubject
             $user->where('email', 'LIKE', '%'.$filter['email'].'%');
         }
 
+        // Handle sorting
+        if (!empty($sort)) {
+            $user->orderBy('created_at', 'desc');
+        } else {
+            $sortParts = explode(' ', trim($sort));
+            if (count($sortParts) === 2) {
+                $user->orderBy($sortParts[0], $sortParts[1]);
+            }
+        }
+
         $total = $user->count();
-        $list = $user->skip($skip)->take($itemPerPage)->orderByRaw($sort)->get();
+        $list = $user->skip($skip)->take($itemPerPage)->get();
 
         return [
             'total' => $total,
