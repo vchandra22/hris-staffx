@@ -2,16 +2,20 @@
 
 namespace App\Helpers\Employee;
 
+use App\Helpers\User\UserHelper;
 use App\Helpers\Venturo;
 use App\Models\EmployeeModel;
+use Illuminate\Support\Facades\Hash;
 
 class EmployeeHelper extends Venturo
 {
     private $employee;
+    private $user;
 
     public function __construct()
     {
         $this->employee = new EmployeeModel();
+        $this->user = new UserHelper();
     }
 
     /**
@@ -23,17 +27,17 @@ class EmployeeHelper extends Venturo
     public function getAll(array $filter = []): object
     {
         $employees = $this->employee->query()
-            ->with(['user', 'department', 'position'])
-            ->when(isset($filter['search']), function ($query) use ($filter) {
+            ->with(['user', 'department', 'position']) // Eager loading relasi
+            ->when(!empty($filter['search']), function ($query) use ($filter) {
                 return $query->whereHas('user', function ($userQuery) use ($filter) {
                     $userQuery->where('name', 'like', '%' . $filter['search'] . '%')
                         ->orWhere('email', 'like', '%' . $filter['search'] . '%');
                 });
             })
-            ->when(isset($filter['department_id']), function ($query) use ($filter) {
+            ->when(!empty($filter['department_id']), function ($query) use ($filter) {
                 return $query->where('department_id', $filter['department_id']);
             })
-            ->when(isset($filter['position_id']), function ($query) use ($filter) {
+            ->when(!empty($filter['position_id']), function ($query) use ($filter) {
                 return $query->where('position_id', $filter['position_id']);
             })
             ->orderBy($filter['sort_by'] ?? 'created_at', $filter['sort_desc'] ?? 'desc');
@@ -42,7 +46,7 @@ class EmployeeHelper extends Venturo
     }
 
     /**
-     * Menyimpan data employee baru
+     * Menyimpan data employee dan user baru
      *
      * @param array $payload
      * @return EmployeeModel
@@ -52,10 +56,46 @@ class EmployeeHelper extends Venturo
         try {
             $this->beginTransaction();
 
-            $employee = $this->employee->create($payload);
+            // Prepare user data
+            $userData = [
+                'name' => $payload['name'],
+                'email' => $payload['email'],
+                'password' => Hash::make($payload['password'] ?? 'password'), // Default password jika tidak diset
+                'phone_number' => $payload['phone_number'] ?? null,
+                'm_user_roles_id' => $payload['role_id'] ?? config('constants.roles.staff'),
+                'photo' => $payload['photo'] ?? null
+            ];
+
+            // Create user
+            $userResult = $this->user->create($userData);
+
+            if (!$userResult['status']) {
+                throw new \Exception($userResult['error']);
+            }
+
+
+            // Mengambil data user dari result
+            $userData = $userResult['data'];
+
+            // Prepare employee data
+            $employeeData = [
+                'user_id' => $userData['id'],
+                'phone' => $payload['phone'] ?? null,
+                'birth_place' => $payload['birth_place'] ?? null,
+                'birth_date' => $payload['birth_date'] ?? null,
+                'address' => $payload['address'] ?? null,
+                'department_id' => $payload['department_id'],
+                'position_id' => $payload['position_id'],
+                'hire_date' => $payload['hire_date'],
+                'salary' => $payload['salary'],
+            ];
+
+            // Create employee
+            $employee = $this->employee->create($employeeData);
 
             $this->commitTransaction();
-            return $employee;
+
+            return $employee->load('user');
         } catch (\Exception $e) {
             $this->rollbackTransaction();
             throw $e;
@@ -85,11 +125,38 @@ class EmployeeHelper extends Venturo
         try {
             $this->beginTransaction();
 
-            $employee = $this->employee->findOrFail($id);
-            $employee->update($payload);
+            $employee = $this->employee->with('user')->findOrFail($id);
+
+            // Update user data if provided
+            if (!empty(array_intersect(array_keys($payload), ['name', 'email', 'password', 'photo', 'role_id']))) {
+                $userData = array_filter([
+                    'name' => $payload['name'] ?? null,
+                    'email' => $payload['email'] ?? null,
+                    'password' => isset($payload['password']) ? Hash::make($payload['password']) : null,
+                    'phone_number' => $payload['phone'] ?? null,
+                    'm_user_roles_id' => $payload['role_id'] ?? null,
+                    'photo' => $payload['photo'] ?? null
+                ]);
+
+                $this->user->update($userData, $employee->user->id);
+            }
+
+            // Update employee data
+            $employeeData = array_filter([
+                'phone' => $payload['phone'] ?? null,
+                'birth_place' => $payload['birth_place'] ?? null,
+                'birth_date' => $payload['birth_date'] ?? null,
+                'address' => $payload['address'] ?? null,
+                'department_id' => $payload['department_id'] ?? null,
+                'position_id' => $payload['position_id'] ?? null,
+                'hire_date' => $payload['hire_date'] ?? null,
+                'salary' => $payload['salary'] ?? null,
+            ]);
+
+            $employee->update($employeeData);
 
             $this->commitTransaction();
-            return $employee->fresh();
+            return $employee->fresh(['user', 'department', 'position']);
         } catch (\Exception $e) {
             $this->rollbackTransaction();
             throw $e;
@@ -138,22 +205,5 @@ class EmployeeHelper extends Venturo
             $this->rollbackTransaction();
             throw $e;
         }
-    }
-
-    /**
-     * Mengecek apakah email sudah digunakan
-     *
-     * @param string $email
-     * @param string|null $excludeId
-     * @return bool
-     */
-    public function isEmailExists(string $email, ?string $excludeId = null): bool
-    {
-        return $this->employee->whereHas('user', function ($query) use ($email, $excludeId) {
-            $query->where('email', $email)
-                ->when($excludeId, function ($q) use ($excludeId) {
-                    return $q->where('id', '!=', $excludeId);
-                });
-        })->exists();
     }
 }

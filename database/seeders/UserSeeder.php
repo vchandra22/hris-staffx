@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -34,7 +35,7 @@ class UserSeeder extends Seeder
         ]);
 
         DB::table('m_user_roles')->insert([
-            'id' => 'f9e49521-4a4a-4b3b-b0ca-73f36c8aef47',
+            'id' => Config::get('constants.roles.admin'),
             'name' => 'Admin',
             'access' => json_encode([
                 'user' => [
@@ -53,7 +54,7 @@ class UserSeeder extends Seeder
         ]);
 
         DB::table('m_user_roles')->insert([
-            'id' => '75d055eb-f4a4-4f47-acbd-d202b19a71fc',
+            'id' => Config::get('constants.roles.staff'),
             'name' => 'Staff',
             'access' => json_encode([
                 'user' => [
