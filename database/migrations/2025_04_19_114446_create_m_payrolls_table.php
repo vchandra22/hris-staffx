@@ -17,6 +17,9 @@ return new class extends Migration
             $table->integer('month');
             $table->integer('year');
             $table->decimal('base_salary', 10, 2);
+            $table->decimal('overtime_hours', 8, 2)->default(0);
+            $table->decimal('overtime_rate', 10, 2)->default(0);
+            $table->decimal('overtime_pay', 12, 2)->default(0);
             $table->decimal('deductions', 10, 2)->default(0);
             $table->decimal('net_salary', 10, 2);
             $table->timestamps();

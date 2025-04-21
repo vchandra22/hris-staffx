@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DepartmentController;
 use App\Http\Controllers\Api\EmployeeController;
+use App\Http\Controllers\Api\PayrollController;
 use App\Http\Controllers\Api\PositionController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\SiteController;
@@ -59,6 +60,13 @@ Route::prefix('v1')->group(function () {
     Route::put('/departments/{id}', [DepartmentController::class, 'update']);
     Route::delete('/departments/{id}', [DepartmentController::class, 'destroy']);
     Route::post('/departments/{id}/restore', [DepartmentController::class, 'restore']);
+
+    Route::get('/payrolls', [PayrollController::class, 'index']);
+    Route::post('/payrolls', [PayrollController::class, 'store']);
+    Route::get('/payrolls/{id}', [PayrollController::class, 'show']);
+    Route::put('/payrolls/{id}', [PayrollController::class, 'update']);
+    Route::delete('/payrolls/{id}', [PayrollController::class, 'destroy']);
+    Route::post('/payrolls/{id}/restore', [PayrollController::class, 'restore']);
 });
 
 Route::get('/', function () {
