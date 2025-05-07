@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DepartmentController;
 use App\Http\Controllers\Api\EmployeeController;
+use App\Http\Controllers\Api\EmployeePositionHistoryController;
 use App\Http\Controllers\Api\PayrollController;
 use App\Http\Controllers\Api\PositionController;
 use App\Http\Controllers\Api\RoleController;
@@ -67,6 +68,30 @@ Route::prefix('v1')->group(function () {
     Route::put('/payrolls/{id}', [PayrollController::class, 'update']);
     Route::delete('/payrolls/{id}', [PayrollController::class, 'destroy']);
     Route::post('/payrolls/{id}/restore', [PayrollController::class, 'restore']);
+
+    Route::prefix('position-histories')->group(function () {
+        Route::get('/', [EmployeePositionHistoryController::class, 'index']);
+        Route::post('/', [EmployeePositionHistoryController::class, 'store']);
+        Route::get('/{id}', [EmployeePositionHistoryController::class, 'show']);
+        Route::put('/{id}', [EmployeePositionHistoryController::class, 'update']);
+        Route::delete('/{id}', [EmployeePositionHistoryController::class, 'destroy']);
+
+        Route::get('/department-stats', [EmployeePositionHistoryController::class, 'departmentStats']);
+        Route::get('/position-stats', [EmployeePositionHistoryController::class, 'positionStats']);
+        Route::get('/organization-structure', [EmployeePositionHistoryController::class, 'organizationStructure']);
+        Route::get('/salary-comparison/department', [EmployeePositionHistoryController::class, 'salaryComparisonByDepartment']);
+        Route::get('/salary-comparison/position', [EmployeePositionHistoryController::class, 'salaryComparisonByPosition']);
+    });
+
+    Route::prefix('employees/{employeeId}')->group(function () {
+        Route::get('/positions', [EmployeePositionHistoryController::class, 'employeeHistory']);
+        Route::post('/positions', [EmployeePositionHistoryController::class, 'assignPosition']);
+        Route::get('/position-changes', [EmployeePositionHistoryController::class, 'employeePositionChanges']);
+        Route::post('/salary', [EmployeePositionHistoryController::class, 'updateSalary']);
+        Route::get('/salary-history', [EmployeePositionHistoryController::class, 'salaryHistory']);
+        Route::get('/salary-increase', [EmployeePositionHistoryController::class, 'salaryIncreasePercentage']);
+    });
+
 });
 
 Route::get('/', function () {

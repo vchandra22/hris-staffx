@@ -17,16 +17,11 @@ return new class extends Migration
             $table->string('birth_place', 100)->nullable();
             $table->date('birth_date')->nullable();
             $table->text('address')->nullable();
-            $table->uuid('department_id')->comment('References id in departments table');
-            $table->uuid('position_id')->comment('References id in positions table');
             $table->date('hire_date')->nullable();
-            $table->decimal('salary', 10, 2)->nullable();
             $table->timestamps();
             $table->softDeletes();
 
             $table->index('user_id');
-            $table->index('department_id');
-            $table->index('position_id');
         });
     }
 

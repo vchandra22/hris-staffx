@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\User\UserHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\User\UserResource;
 use Illuminate\Http\Request;
 
 class UserController extends Controller

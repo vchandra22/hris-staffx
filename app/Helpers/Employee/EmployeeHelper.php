@@ -5,17 +5,20 @@ namespace App\Helpers\Employee;
 use App\Helpers\User\UserHelper;
 use App\Helpers\Venturo;
 use App\Models\EmployeeModel;
+use App\Models\EmployeePositionHistoryModel;
 use Illuminate\Support\Facades\Hash;
 
 class EmployeeHelper extends Venturo
 {
     private $employee;
     private $user;
+    private $positionHistory;
 
     public function __construct()
     {
         $this->employee = new EmployeeModel();
         $this->user = new UserHelper();
+        $this->positionHistory = new EmployeePositionHistoryModel();
     }
 
     /**
@@ -27,7 +30,7 @@ class EmployeeHelper extends Venturo
     public function getAll(array $filter = []): object
     {
         $employees = $this->employee->query()
-            ->with(['user', 'department', 'position']) // Eager loading relasi
+            ->with(['user', 'department', 'position', 'currentPosition']) // Eager loading relasi
             ->when(!empty($filter['search']), function ($query) use ($filter) {
                 return $query->whereHas('user', function ($userQuery) use ($filter) {
                     $userQuery->where('name', 'like', '%' . $filter['search'] . '%')
@@ -35,10 +38,14 @@ class EmployeeHelper extends Venturo
                 });
             })
             ->when(!empty($filter['department_id']), function ($query) use ($filter) {
-                return $query->where('department_id', $filter['department_id']);
+                return $query->whereHas('currentPosition', function ($positionQuery) use ($filter) {
+                    $positionQuery->where('department_id', $filter['department_id']);
+                });
             })
             ->when(!empty($filter['position_id']), function ($query) use ($filter) {
-                return $query->where('position_id', $filter['position_id']);
+                return $query->whereHas('currentPosition', function ($positionQuery) use ($filter) {
+                    $positionQuery->where('position_id', $filter['position_id']);
+                });
             })
             ->orderBy($filter['sort_by'] ?? 'created_at', $filter['sort_desc'] ?? 'desc');
 
@@ -73,7 +80,6 @@ class EmployeeHelper extends Venturo
                 throw new \Exception($userResult['error']);
             }
 
-
             // Mengambil data user dari result
             $userData = $userResult['data'];
 
@@ -83,18 +89,30 @@ class EmployeeHelper extends Venturo
                 'birth_place' => $payload['birth_place'] ?? null,
                 'birth_date' => $payload['birth_date'] ?? null,
                 'address' => $payload['address'] ?? null,
-                'department_id' => $payload['department_id'],
-                'position_id' => $payload['position_id'],
                 'hire_date' => $payload['hire_date'],
-                'salary' => $payload['salary'],
             ];
 
             // Create employee
-            $employee = $this->employee->create($employeeData);
+            $employee = $this->employee->store($employeeData);
+
+            // Tambahkan data posisi awal jika disertakan
+            if (isset($payload['position_id']) && isset($payload['department_id'])) {
+                $this->positionHistory->store([
+                    'employee_id' => $employee->id,
+                    'position_id' => $payload['position_id'],
+                    'department_id' => $payload['department_id'],
+                    'start_date' => $payload['hire_date'] ?? now(),
+                    'is_current' => true,
+                    'salary' => $payload['salary'] ?? null,
+                    'notes' => 'Initial position',
+                    'created_by' => auth()->id() ?? null,
+                    'approved_by' => auth()->id() ?? null
+                ]);
+            }
 
             $this->commitTransaction();
 
-            return $employee->load('user');
+            return $employee->load(['user', 'currentPosition.department', 'currentPosition.position']);
         } catch (\Exception $e) {
             $this->rollbackTransaction();
             throw $e;
@@ -109,7 +127,7 @@ class EmployeeHelper extends Venturo
      */
     public function getById(string $id): EmployeeModel
     {
-        return $this->employee->with(['user', 'department', 'position'])->findOrFail($id);
+        return $this->employee->with(['user', 'currentPosition.department', 'currentPosition.position'])->findOrFail($id);
     }
 
     /**
@@ -124,15 +142,15 @@ class EmployeeHelper extends Venturo
         try {
             $this->beginTransaction();
 
-            $employee = $this->employee->with('user')->findOrFail($id);
+            $employee = $this->employee->with(['user', 'currentPosition'])->findOrFail($id);
 
             // Update user data if provided
-            if (!empty(array_intersect(array_keys($payload), ['name', 'email', 'password', 'photo', 'role_id']))) {
+            if (!empty(array_intersect(array_keys($payload), ['name', 'email', 'password', 'photo', 'role_id', 'phone_number']))) {
                 $userData = array_filter([
                     'name' => $payload['name'] ?? null,
                     'email' => $payload['email'] ?? null,
                     'password' => isset($payload['password']) ? Hash::make($payload['password']) : null,
-                    'phone_number' => $payload['phone'] ?? null,
+                    'phone_number' => $payload['phone_number'] ?? null,
                     'm_user_roles_id' => $payload['role_id'] ?? null,
                     'photo' => $payload['photo'] ?? null
                 ]);
@@ -145,16 +163,46 @@ class EmployeeHelper extends Venturo
                 'birth_place' => $payload['birth_place'] ?? null,
                 'birth_date' => $payload['birth_date'] ?? null,
                 'address' => $payload['address'] ?? null,
-                'department_id' => $payload['department_id'] ?? null,
-                'position_id' => $payload['position_id'] ?? null,
                 'hire_date' => $payload['hire_date'] ?? null,
-                'salary' => $payload['salary'] ?? null,
             ]);
 
+            // Update employee basic info
             $employee->update($employeeData);
 
+            // Check if position data needs to be updated
+            $positionChanged = false;
+            $currentPosition = $employee->currentPosition;
+
+            if (isset($payload['position_id']) && $currentPosition && $payload['position_id'] != $currentPosition->position_id) {
+                $positionChanged = true;
+            }
+
+            if (isset($payload['department_id']) && $currentPosition && $payload['department_id'] != $currentPosition->department_id) {
+                $positionChanged = true;
+            }
+
+            if (isset($payload['salary']) && $currentPosition && $payload['salary'] != $currentPosition->salary) {
+                $positionChanged = true;
+            }
+
+            // Jika ada perubahan posisi, buat riwayat baru
+            if ($positionChanged) {
+                $this->positionHistory->store([
+                    'employee_id' => $id,
+                    'position_id' => $payload['position_id'] ?? $currentPosition->position_id,
+                    'department_id' => $payload['department_id'] ?? $currentPosition->department_id,
+                    'start_date' => $payload['position_start_date'] ?? now(),
+                    'is_current' => true,
+                    'salary' => $payload['salary'] ?? $currentPosition->salary,
+                    'notes' => $payload['position_notes'] ?? 'Position updated',
+                    'created_by' => auth()->id() ?? null,
+                    'approved_by' => $payload['approved_by'] ?? auth()->id() ?? null
+                ]);
+            }
+
             $this->commitTransaction();
-            return $employee->fresh(['user', 'department', 'position']);
+
+            return $this->getById($id);
         } catch (\Exception $e) {
             $this->rollbackTransaction();
             throw $e;

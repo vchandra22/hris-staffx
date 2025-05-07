@@ -24,9 +24,42 @@ class DepartmentModel extends Model implements CrudInterface
     ];
 
     // Relationships
+    // Relasi ke tabel riwayat posisi
+    public function positionHistories()
+    {
+        return $this->hasMany(EmployeePositionHistoryModel::class, 'department_id', 'id');
+    }
+
+    // Relasi untuk mendapatkan semua karyawan yang saat ini berada di departemen ini
     public function employees()
     {
-        return $this->hasMany(EmployeeModel::class, 'department_id', 'id');
+        return $this->hasManyThrough(
+            EmployeeModel::class,
+            EmployeePositionHistoryModel::class,
+            'department_id', // Foreign key pada EmployeePositionHistoryModel
+            'id', // Foreign key pada EmployeeModel
+            'id', // Local key pada DepartmentModel
+            'employee_id' // Local key pada EmployeePositionHistoryModel
+        )->where('m_employee_position_history.is_current', true);
+    }
+
+    // Relasi untuk mendapatkan semua karyawan (historis) di departemen ini
+    public function allEmployees()
+    {
+        return $this->belongsToMany(
+            EmployeeModel::class,
+            'm_employee_position_history',
+            'department_id',
+            'employee_id'
+        )
+            ->withPivot(['position_id', 'start_date', 'end_date', 'is_current', 'salary'])
+            ->withTimestamps();
+    }
+
+    // Mendapatkan jumlah karyawan aktif di departemen
+    public function getEmployeeCountAttribute()
+    {
+        return $this->positionHistories()->where('is_current', true)->count();
     }
 
     public function getAll(array $filter, int $page, int $itemPerPage, string $sort)

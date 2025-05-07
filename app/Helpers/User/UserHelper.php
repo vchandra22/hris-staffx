@@ -188,5 +188,4 @@ class UserHelper extends Venturo
             return false;
         }
     }
-
 }

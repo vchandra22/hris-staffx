@@ -7,6 +7,7 @@ use App\Repository\CrudInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class AttendanceModel extends Model implements CrudInterface
 {
@@ -22,13 +23,25 @@ class AttendanceModel extends Model implements CrudInterface
         'employee_id',
         'date',
         'check_in',
-        'check_out'
+        'check_out',
+        'status',
+        'late_minutes',
+        'early_leave_minutes',
+        'overtime_minutes',
+        'lat',
+        'lng',
+        'notes',
     ];
 
     protected $casts = [
         'date' => 'date',
         'check_in' => 'datetime',
-        'check_out' => 'datetime'
+        'check_out' => 'datetime',
+        'late_minutes' => 'integer',
+        'early_leave_minutes' => 'integer',
+        'overtime_minutes' => 'integer',
+        'lat' => 'float',
+        'lng' => 'float'
     ];
 
     // Relationships
@@ -37,7 +50,16 @@ class AttendanceModel extends Model implements CrudInterface
         return $this->belongsTo(EmployeeModel::class, 'employee_id', 'id');
     }
 
-    public function getAll(array $filter, int $page, int $itemPerPage, string $sort)
+    /**
+     * Get all attendance records with filtering and pagination
+     *
+     * @param array $filter
+     * @param int $page
+     * @param int $itemPerPage
+     * @param string $sort
+     * @return LengthAwarePaginator
+     */
+    public function getAll(array $filter, int $page = 1, int $itemPerPage = 10, string $sort = 'date,desc'): LengthAwarePaginator
     {
         $attendance = $this->query();
 
@@ -53,6 +75,10 @@ class AttendanceModel extends Model implements CrudInterface
             $attendance->whereBetween('date', [$filter['start_date'], $filter['end_date']]);
         }
 
+        if (isset($filter['status']) && !empty($filter['status'])) {
+            $attendance->where('status', $filter['status']);
+        }
+
         if (isset($filter['has_checkout'])) {
             if ($filter['has_checkout']) {
                 $attendance->whereNotNull('check_out');
@@ -61,30 +87,77 @@ class AttendanceModel extends Model implements CrudInterface
             }
         }
 
-        $sort = $sort ?: 'date,desc';
         $sortArray = explode(',', $sort);
-        $attendance->orderBy($sortArray[0], $sortArray[1]);
+        if (count($sortArray) === 2) {
+            $attendance->orderBy($sortArray[0], $sortArray[1]);
+        } else {
+            $attendance->orderBy('date', 'desc');
+        }
 
-        return $attendance->paginate($itemPerPage);
+        return $attendance->paginate($itemPerPage, ['*'], 'page', $page);
     }
 
+    /**
+     * Get attendance record by ID
+     *
+     * @param string $id
+     * @return AttendanceModel
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
     public function getById(string $id): object
     {
         return $this->findOrFail($id);
     }
 
+    /**
+     * Create new attendance record
+     *
+     * @param array $payload
+     * @return AttendanceModel
+     */
     public function store(array $payload): object
     {
         return $this->create($payload);
     }
 
-    public function edit(array $payload, string $id): object
+    /**
+     * Update attendance record
+     *
+     * @param array $payload
+     * @param string $id
+     * @return bool
+     */
+    public function edit(array $payload, string $id): bool
     {
-        return $this->find($id)->update($payload);
+        $attendance = $this->findOrFail($id);
+        return $attendance->update($payload);
     }
 
+    /**
+     * Delete attendance record
+     *
+     * @param string $id
+     * @return bool
+     */
     public function drop(string $id): bool
     {
-        return $this->find($id)->delete();
+        $attendance = $this->findOrFail($id);
+        return $attendance->delete();
+    }
+
+    /**
+     * Scope query to current day's attendance
+     */
+    public function scopeToday($query)
+    {
+        return $query->whereDate('date', now()->toDateString());
+    }
+
+    /**
+     * Scope query for attendance without checkout
+     */
+    public function scopeNoCheckout($query)
+    {
+        return $query->whereNotNull('check_in')->whereNull('check_out');
     }
 }

@@ -24,9 +24,42 @@ class PositionModel extends Model implements CrudInterface
     ];
 
     // Relationships
+    // Relasi ke tabel riwayat posisi
+    public function positionHistories()
+    {
+        return $this->hasMany(EmployeePositionHistoryModel::class, 'position_id', 'id');
+    }
+
+    // Relasi untuk mendapatkan semua karyawan yang saat ini berada di posisi ini
     public function employees()
     {
-        return $this->hasMany(EmployeeModel::class, 'position_id', 'id');
+        return $this->hasManyThrough(
+            EmployeeModel::class,
+            EmployeePositionHistoryModel::class,
+            'position_id', // Foreign key pada EmployeePositionHistoryModel
+            'id', // Foreign key pada EmployeeModel
+            'id', // Local key pada PositionModel
+            'employee_id' // Local key pada EmployeePositionHistoryModel
+        )->where('m_employee_position_history.is_current', true);
+    }
+
+    // Relasi untuk mendapatkan semua karyawan (historis) di posisi ini
+    public function allEmployees()
+    {
+        return $this->belongsToMany(
+            EmployeeModel::class,
+            'm_employee_position_history',
+            'position_id',
+            'employee_id'
+        )
+            ->withPivot(['department_id', 'start_date', 'end_date', 'is_current', 'salary'])
+            ->withTimestamps();
+    }
+
+    // Mendapatkan jumlah karyawan aktif di posisi
+    public function getEmployeeCountAttribute()
+    {
+        return $this->positionHistories()->where('is_current', true)->count();
     }
 
     public function getAll(array $filter, int $page, int $itemPerPage, string $sort)
@@ -35,6 +68,13 @@ class PositionModel extends Model implements CrudInterface
 
         if (!empty($filter['name'])) {
             $position->where('name', 'LIKE', '%' . $filter['name'] . '%');
+        }
+
+        if (!empty($filter['department_id'])) {
+            $position->whereHas('positionHistories', function ($query) use ($filter) {
+                $query->where('department_id', $filter['department_id'])
+                    ->where('is_current', true);
+            });
         }
 
         $sort = $sort ?: 'id,asc';
