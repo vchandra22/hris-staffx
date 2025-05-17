@@ -1,12 +1,16 @@
 <?php
 
+use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DepartmentController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\EmployeePositionHistoryController;
+use App\Http\Controllers\Api\LeaveTypeController;
 use App\Http\Controllers\Api\PayrollController;
 use App\Http\Controllers\Api\PositionController;
 use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\LeaveRequestController;
+use App\Http\Controllers\Api\ShiftController;
 use App\Http\Controllers\Api\SiteController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
@@ -68,6 +72,35 @@ Route::prefix('v1')->group(function () {
     Route::put('/payrolls/{id}', [PayrollController::class, 'update']);
     Route::delete('/payrolls/{id}', [PayrollController::class, 'destroy']);
     Route::post('/payrolls/{id}/restore', [PayrollController::class, 'restore']);
+
+    Route::get('/attendances', [AttendanceController::class, 'index']);
+    Route::post('/attendances', [AttendanceController::class, 'store']);
+    Route::get('/attendances/{id}', [AttendanceController::class, 'show']);
+    Route::put('/attendances/{id}', [AttendanceController::class, 'update']);
+    Route::delete('/attendances/{id}', [AttendanceController::class, 'destroy']);
+    Route::post('/attendances/{id}/restore', [AttendanceController::class, 'restore']);
+
+    Route::get('/shifts', [ShiftController::class, 'index']);
+    Route::post('/shifts', [ShiftController::class, 'store']);
+    Route::get('/shifts/{id}', [ShiftController::class, 'show']);
+    Route::put('/shifts/{id}', [ShiftController::class, 'update']);
+    Route::delete('/shifts/{id}', [ShiftController::class, 'destroy']);
+    Route::post('/shifts/{id}/restore', [ShiftController::class, 'restore']);
+
+    Route::get('/leave-types', [LeaveTypeController::class, 'index']);
+    Route::post('/leave-types', [LeaveTypeController::class, 'store']);
+    Route::get('/leave-types/{id}', [LeaveTypeController::class, 'show']);
+    Route::put('/leave-types/{id}', [LeaveTypeController::class, 'update']);
+    Route::delete('/leave-types/{id}', [LeaveTypeController::class, 'destroy']);
+
+    Route::get('/leave-requests', [LeaveRequestController::class, 'index']);
+    Route::post('/leave-requests', [LeaveRequestController::class, 'store']);
+    Route::get('/leave-requests/{id}', [LeaveRequestController::class, 'show']);
+    Route::put('/leave-requests/{id}', [LeaveRequestController::class, 'update']);
+    Route::delete('/leave-requests/{id}', [LeaveRequestController::class, 'destroy']);
+    Route::post('/leave-requests/{id}/restore', [LeaveRequestController::class, 'restore']);
+    Route::post('/leave-requests/{id}/approve', [LeaveRequestController::class, 'approve']);
+    Route::post('/leave-requests/{id}/reject', [LeaveRequestController::class, 'reject']);
 
     Route::prefix('position-histories')->group(function () {
         Route::get('/', [EmployeePositionHistoryController::class, 'index']);

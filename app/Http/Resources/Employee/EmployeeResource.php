@@ -15,14 +15,16 @@ class EmployeeResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'user' => [
-                'id' => $this->user->id,
-                'name' => $this->user->name,
-                'email' => $this->user->email,
-                'phone_number' => $this->user->phone_number,
-                'photo' => $this->user->photo,
-            ],
+            'id' => $this->resource->getKey(),
+            'user' => $this->whenLoaded('user', function() {
+                return [
+                    'id' => $this->user->id,
+                    'name' => $this->user->name,
+                    'email' => $this->user->email,
+                    'phone_number' => $this->user->phone_number,
+                    'photo' => $this->user->photo,
+                ];
+            }, null),
             'birth_place' => $this->birth_place,
             'birth_date' => $this->birth_date ? $this->birth_date->format('Y-m-d') : null,
             'address' => $this->address,

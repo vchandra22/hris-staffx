@@ -30,7 +30,7 @@ class EmployeeHelper extends Venturo
     public function getAll(array $filter = []): object
     {
         $employees = $this->employee->query()
-            ->with(['user', 'department', 'position', 'currentPosition']) // Eager loading relasi
+            ->with(['user', 'department', 'position', 'currentPosition'])
             ->when(!empty($filter['search']), function ($query) use ($filter) {
                 return $query->whereHas('user', function ($userQuery) use ($filter) {
                     $userQuery->where('name', 'like', '%' . $filter['search'] . '%')
@@ -46,8 +46,7 @@ class EmployeeHelper extends Venturo
                 return $query->whereHas('currentPosition', function ($positionQuery) use ($filter) {
                     $positionQuery->where('position_id', $filter['position_id']);
                 });
-            })
-            ->orderBy($filter['sort_by'] ?? 'created_at', $filter['sort_desc'] ?? 'desc');
+            })->orderBy($filter['sort_by'] ?? 'created_at', $filter['sort_desc'] ?? 'desc');
 
         return $employees->paginate($filter['per_page'] ?? 10);
     }
@@ -248,7 +247,7 @@ class EmployeeHelper extends Venturo
             $this->beginTransaction();
 
             $employee = $this->employee->withTrashed()
-                ->with(['user' => function($query) {
+                ->with(['user' => function ($query) {
                     $query->withTrashed();
                 }])
                 ->findOrFail($id);

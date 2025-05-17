@@ -27,18 +27,41 @@ class LeaveRequestModel extends Model implements CrudInterface
         'start_date',
         'end_date',
         'reason',
-        'status'
+        'leave_type_id',
+        'total_days',
+        'half_day',
+        'half_day_time',
+        'status',
+        'approved_by',
+        'approved_at',
+        'rejection_reason',
+        'attachment_path',
+        'attachment_type'
     ];
 
     protected $casts = [
         'start_date' => 'date',
-        'end_date' => 'date'
+        'end_date' => 'date',
+        'approved_at' => 'datetime',
+        'half_day' => 'boolean',
+        'half_day_time' => 'datetime',
+        'total_days' => 'decimal:1'
     ];
 
     // Relationships
     public function employee()
     {
         return $this->belongsTo(EmployeeModel::class, 'employee_id', 'id');
+    }
+
+    public function leaveType()
+    {
+        return $this->belongsTo(LeaveTypeModel::class, 'leave_type_id', 'id');
+    }
+
+    public function approver()
+    {
+        return $this->belongsTo(UserModel::class, 'approved_by', 'id');
     }
 
     public function getAll(array $filter, int $page, int $itemPerPage, string $sort)

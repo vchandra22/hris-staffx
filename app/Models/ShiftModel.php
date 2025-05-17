@@ -7,6 +7,7 @@ use App\Repository\CrudInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ShiftModel extends Model implements CrudInterface
 {
@@ -22,13 +23,13 @@ class ShiftModel extends Model implements CrudInterface
         'employee_id',
         'date',
         'start_time',
-        'end_time'
+        'end_time',
     ];
 
     protected $casts = [
         'date' => 'date',
         'start_time' => 'datetime',
-        'end_time' => 'datetime'
+        'end_time' => 'datetime',
     ];
 
     // Relationships
@@ -37,7 +38,16 @@ class ShiftModel extends Model implements CrudInterface
         return $this->belongsTo(EmployeeModel::class, 'employee_id', 'id');
     }
 
-    public function getAll(array $filter, int $page, int $itemPerPage, string $sort)
+    /**
+     * Get all shift records with filtering and pagination
+     *
+     * @param array $filter
+     * @param int $page
+     * @param int $itemPerPage
+     * @param string $sort
+     * @return LengthAwarePaginator
+     */
+    public function getAll(array $filter, int $page = 1, int $itemPerPage = 10, string $sort = 'date,desc'): LengthAwarePaginator
     {
         $shift = $this->query();
 
@@ -53,30 +63,69 @@ class ShiftModel extends Model implements CrudInterface
             $shift->whereBetween('date', [$filter['start_date'], $filter['end_date']]);
         }
 
-        $sort = $sort ?: 'date,desc';
         $sortArray = explode(',', $sort);
-        $shift->orderBy($sortArray[0], $sortArray[1]);
+        if (count($sortArray) === 2) {
+            $shift->orderBy($sortArray[0], $sortArray[1]);
+        } else {
+            $shift->orderBy('date', 'desc');
+        }
 
-        return $shift->paginate($itemPerPage);
+        return $shift->paginate($itemPerPage, ['*'], 'page', $page);
     }
 
+    /**
+     * Get shift record by ID
+     *
+     * @param string $id
+     * @return ShiftModel
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
     public function getById(string $id): object
     {
         return $this->findOrFail($id);
     }
 
+    /**
+     * Create new shift record
+     *
+     * @param array $payload
+     * @return ShiftModel
+     */
     public function store(array $payload): object
     {
         return $this->create($payload);
     }
 
-    public function edit(array $payload, string $id): object
+    /**
+     * Update shift record
+     *
+     * @param array $payload
+     * @param string $id
+     * @return bool
+     */
+    public function edit(array $payload, string $id): bool
     {
-        return $this->find($id)->update($payload);
+        $shift = $this->findOrFail($id);
+        return $shift->update($payload);
     }
 
+    /**
+     * Delete shift record
+     *
+     * @param string $id
+     * @return bool
+     */
     public function drop(string $id): bool
     {
-        return $this->find($id)->delete();
+        $shift = $this->findOrFail($id);
+        return $shift->delete();
+    }
+
+    /**
+     * Scope query to current day's shifts
+     */
+    public function scopeToday($query)
+    {
+        return $query->whereDate('date', now()->toDateString());
     }
 }

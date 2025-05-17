@@ -16,18 +16,18 @@ class PayrollResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'employee' => [
+            'employee' => $this->employee ? [
                 'id' => $this->employee->id,
-                'name' => $this->employee->user->name,
-                'department' => [
+                'name' => $this->employee->user ? $this->employee->user->name : null,
+                'department' => $this->employee->department ? [
                     'id' => $this->employee->department->id,
                     'name' => $this->employee->department->name,
-                ],
-                'position' => [
+                ] : null,
+                'position' => $this->employee->position ? [
                     'id' => $this->employee->position->id,
                     'name' => $this->employee->position->name,
-                ],
-            ],
+                ] : null,
+            ] : null,
             'month' => $this->month,
             'year' => $this->year,
             'period' => sprintf('%s-%02d', $this->year, $this->month),
