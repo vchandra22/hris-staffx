@@ -11,11 +11,11 @@ Sebelum menjalankan projek ini pastikan php yang digunakan minimal versi 8.2.
 Berikut tahap untuk setup projek :
 - Clone this repository
 ```
-  git clone https://gitlab.com/venturo-web/venturo-laravel-skeleton.git
+  git clone https://github.com/vchandra22/hris-staffx.git
 ```
 - Masuk ke direktori projek
 ```
-cd venturo-laravel-skeleton
+cd hris-staffx
 ```
 - Instal dependency laravel menggunakan perintah
 ```
@@ -35,7 +35,7 @@ Sesuaikan konfigurasi database pada file `.env`
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=core_laravel_11_venturo
+DB_DATABASE=hris_db
 DB_USERNAME=root
 DB_PASSWORD=
 ```
