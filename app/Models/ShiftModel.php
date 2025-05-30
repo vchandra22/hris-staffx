@@ -105,7 +105,7 @@ class ShiftModel extends Model implements CrudInterface
      */
     public function edit(array $payload, string $id): bool
     {
-        $shift = $this->findOrFail($id);
+        $shift = $this->find($id);
         return $shift->update($payload);
     }
 

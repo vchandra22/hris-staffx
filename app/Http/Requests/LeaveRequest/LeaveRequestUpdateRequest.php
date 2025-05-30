@@ -61,7 +61,7 @@ class LeaveRequestUpdateRequest extends FormRequest
             'start_date' => 'sometimes|date',
             'end_date' => 'sometimes|date|after_or_equal:start_date',
             'reason' => 'sometimes|string',
-            'leave_type_id' => 'sometimes|uuid|exists:leave_types,id',
+            'leave_type_id' => 'sometimes|uuid|exists:m_leave_types,id',
             'total_days' => 'nullable|numeric|min:0.5',
             'half_day' => 'nullable|boolean',
             'half_day_time' => 'nullable|required_if:half_day,true|date_format:H:i:s',

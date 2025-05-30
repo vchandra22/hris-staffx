@@ -25,17 +25,25 @@ class RoleModel extends Model implements CrudInterface
 
     public function drop(string $id)
     {
-        return $this->find($id)->delete();
+        $role = $this->find($id);
+        if (!$role) {
+            return false;
+        }
+        return $role->delete();
     }
 
     public function edit(array $payload, string $id)
     {
-        return $this->find($id)->update($payload);
+        $role = $this->find($id);
+        if (!$role) {
+            return null;
+        }
+        $role->update($payload);
+        return $role;
     }
 
     public function getAll(array $filter, int $page = 1, int $itemPerPage = 0, string $sort = '')
     {
-        $skip = ($page * $itemPerPage) - $itemPerPage;
         $role = $this->query();
 
         if (! empty($filter['name'])) {
@@ -43,7 +51,17 @@ class RoleModel extends Model implements CrudInterface
         }
 
         $total = $role->count();
-        $list = $role->skip($skip)->take($itemPerPage)->orderByRaw($sort)->get();
+
+        if (!empty($sort)) {
+            $role->orderByRaw($sort);
+        }
+
+        if ($itemPerPage > 0) {
+            $skip = ($page * $itemPerPage) - $itemPerPage;
+            $role->skip($skip)->take($itemPerPage);
+        }
+
+        $list = $role->get();
 
         return [
             'total' => $total,

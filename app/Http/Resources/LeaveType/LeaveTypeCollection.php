@@ -9,7 +9,7 @@ class LeaveTypeCollection extends ResourceCollection
     public function toArray($request)
     {
         return [
-            'data' => LeaveTypeResource::collection($this->collection),
+            'list' => LeaveTypeResource::collection($this->collection),
             'meta' => [
                 'current_page' => $this->currentPage(),
                 'last_page' => $this->lastPage(),

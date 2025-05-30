@@ -22,10 +22,6 @@ class UserModel extends Authenticatable implements CrudInterface, JWTSubject
      */
     public $timestamps = true;
 
-    protected $attributes = [
-        'm_user_roles_id' => 1, // memberi nilai default = 1 pada kolom m_user_roles_id
-    ];
-
     /**
      * Menentukan kolom apa saja yang bisa dimanipulasi oleh UserModel
      *

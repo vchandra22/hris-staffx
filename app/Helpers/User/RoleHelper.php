@@ -62,14 +62,18 @@ class RoleHelper extends Venturo
     public function update(array $payload, string $id): array
     {
         try {
+            $role = $this->roleModel->edit($payload, $id);
 
-            $this->roleModel->edit($payload, $id);
-
-            $role = $this->getById($id);
+            if (!$role) {
+                return [
+                    'status' => false,
+                    'error' => 'Role tidak ditemukan',
+                ];
+            }
 
             return [
                 'status' => true,
-                'data' => $role['data'],
+                'data' => $role,
             ];
         } catch (Throwable $th) {
             return [
@@ -82,9 +86,9 @@ class RoleHelper extends Venturo
     public function delete(string $id): bool
     {
         try {
-            $this->roleModel->drop($id);
+            $deleted = $this->roleModel->drop($id);
 
-            return true;
+            return $deleted ? true : false;
         } catch (Throwable $th) {
             return false;
         }

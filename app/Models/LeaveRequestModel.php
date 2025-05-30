@@ -117,7 +117,9 @@ class LeaveRequestModel extends Model implements CrudInterface
 
     public function edit(array $payload, string $id): object
     {
-        return $this->find($id)->update($payload);
+        $leaveRequest = $this->findOrFail($id);
+        $leaveRequest->update($payload);
+        return $leaveRequest;
     }
 
     public function drop(string $id): bool

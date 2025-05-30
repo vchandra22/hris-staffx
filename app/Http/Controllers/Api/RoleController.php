@@ -26,13 +26,13 @@ class RoleController extends Controller
      */
     public function destroy($id)
     {
-        $role = $this->roleHelper->delete($id);
+        $deleted = $this->roleHelper->delete($id);
 
-        if (! $role) {
+        if (! $deleted) {
             return response()->failed(['Mohon maaf role tidak ditemukan']);
         }
 
-        return response()->success($role, 'Role berhasil dihapus');
+        return response()->success(null, 'Role berhasil dihapus');
     }
 
     /**
@@ -48,12 +48,11 @@ class RoleController extends Controller
         $roles = $this->roleHelper->getAll($filter, $request->page ?? 1, $request->per_page ?? 25, $request->sort ?? '');
 
         return response()->success([
-            'list' => RoleResource::collection($roles['data']),
+            'list' => RoleResource::collection($roles['data']['data']),
             'meta' => [
-                'total' => $roles['total'],
+                'total' => $roles['data']['total'],
             ],
         ]);
-
     }
 
     /**

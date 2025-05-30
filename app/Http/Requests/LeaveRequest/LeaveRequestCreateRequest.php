@@ -60,7 +60,7 @@ class LeaveRequestCreateRequest extends FormRequest
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'reason' => 'required|string',
-            'leave_type_id' => 'required|uuid|exists:leave_types,id',
+            'leave_type_id' => 'required|uuid|exists:m_leave_types,id',
             'total_days' => 'nullable|numeric|min:0.5',
             'half_day' => 'nullable|boolean',
             'half_day_time' => 'nullable|required_if:half_day,true|date_format:H:i:s',
