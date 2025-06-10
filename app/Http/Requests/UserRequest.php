@@ -51,7 +51,7 @@ class UserRequest extends FormRequest
             'email' => 'required|email|unique:m_user',
             'password' => 'required|min:6',
             'phone_number' => 'numeric',
-            'm_user_roles_id' => 'required',
+//            'm_user_roles_id' => 'required',
         ];
     }
 
@@ -62,7 +62,7 @@ class UserRequest extends FormRequest
             'photo' => 'nullable|file|image',
             'email' => 'required|email|unique:m_user,email,'.$this->id,
             'phone_number' => 'numeric',
-            'm_user_roles_id' => 'required',
+//            'm_user_roles_id' => 'required',
         ];
     }
 
